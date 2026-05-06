@@ -8,6 +8,7 @@ import { fileURLToPath } from "node:url";
 import { env } from "./config/env.js";
 import authRoutes from "./routes/authRoutes.js";
 import dashboardRoutes from "./routes/dashboardRoutes.js";
+import followUpRoutes from "./routes/followUpRoutes.js";
 import inquiryRoutes from "./routes/inquiryRoutes.js";
 import locationRoutes from "./routes/locationRoutes.js";
 import propertyRoutes from "./routes/propertyRoutes.js";
@@ -34,6 +35,7 @@ app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
 app.use("/api/auth", authRoutes);
 app.use("/api/dashboard", dashboardRoutes);
+app.use("/api/follow-ups", followUpRoutes);
 app.use("/api/inquiries", inquiryRoutes);
 app.use("/api/locations", locationRoutes);
 app.use("/api/location", locationRoutes);

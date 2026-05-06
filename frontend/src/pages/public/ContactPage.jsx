@@ -1,5 +1,6 @@
 import InquiryForm from "../../components/forms/InquiryForm";
-import { OFFICE_ADDRESS, OFFICE_PHONES } from "../../data/propertyTypes";
+import { ADMIN_NAME, OFFICE_ADDRESS, OFFICE_EMAIL, OFFICE_PHONES } from "../../data/propertyTypes";
+import { createMailtoUrl } from "../../utils/email";
 
 export default function ContactPage() {
   const mapQuery = encodeURIComponent(OFFICE_ADDRESS);
@@ -9,7 +10,7 @@ export default function ContactPage() {
       <div className="grid gap-8 lg:grid-cols-[0.9fr_1.1fr]">
         <section>
           <p className="eyebrow">Contact</p>
-          <h1 className="mt-3 text-4xl font-black leading-tight text-slate-950 md:text-5xl">Talk to the Siddipet property team.</h1>
+          <h1 className="mt-3 text-4xl font-black leading-tight text-slate-950 md:text-5xl">Talk to {ADMIN_NAME} and the Siddipet property team.</h1>
           <p className="mt-5 max-w-xl text-lg leading-8 text-slate-700">
             Send your requirement, call the office, or visit Pragnapur for offline property guidance.
           </p>
@@ -27,6 +28,12 @@ export default function ContactPage() {
                   </a>
                 ))}
               </div>
+            </div>
+            <div className="card p-5">
+              <p className="text-sm font-black uppercase text-slate-500">Email</p>
+              <a className="mt-2 block font-bold text-brand-700" href={createMailtoUrl()}>
+                {OFFICE_EMAIL}
+              </a>
             </div>
           </div>
         </section>

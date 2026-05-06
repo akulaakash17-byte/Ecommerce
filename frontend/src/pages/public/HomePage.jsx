@@ -3,6 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import EmptyState from "../../components/common/EmptyState";
 import { PropertyCardSkeleton } from "../../components/common/LoadingSkeleton";
 import PropertyCard from "../../components/properties/PropertyCard";
+import { FAQS } from "../../data/faqs";
 import { OFFICE_ADDRESS } from "../../data/propertyTypes";
 import { locationService } from "../../services/locationService";
 import { propertyService } from "../../services/propertyService";
@@ -105,6 +106,24 @@ export default function HomePage() {
             <EmptyState title="No properties yet" message="Add listings from the admin dashboard and they will appear here." />
           </div>
         ) : null}
+      </section>
+
+      <section className="container-page py-10">
+        <div className="flex flex-col justify-between gap-4 md:flex-row md:items-end">
+          <div>
+            <p className="eyebrow">FAQ</p>
+            <h2 className="section-title mt-2">Questions buyers ask first</h2>
+          </div>
+          <Link className="btn-secondary" to="/faq">View all FAQs</Link>
+        </div>
+        <div className="mt-6 grid gap-4 md:grid-cols-3">
+          {FAQS[0].items.map((item) => (
+            <div className="card p-5" key={item.question}>
+              <h3 className="font-black text-slate-950">{item.question}</h3>
+              <p className="mt-3 line-clamp-3 text-sm leading-6 text-slate-600">{item.answer}</p>
+            </div>
+          ))}
+        </div>
       </section>
     </>
   );

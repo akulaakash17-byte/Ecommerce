@@ -1,11 +1,12 @@
 import { useEffect, useMemo, useState } from "react";
 import { useParams } from "react-router-dom";
 import ErrorMessage from "../../components/common/ErrorMessage";
+import WhatsAppIcon from "../../components/common/WhatsAppIcon";
 import InquiryForm from "../../components/forms/InquiryForm";
-import { OFFICE_WHATSAPP } from "../../data/propertyTypes";
 import { propertyService } from "../../services/propertyService";
 import { formatPrice } from "../../utils/formatters";
 import { FALLBACK_PROPERTY_IMAGE, resolveImage } from "../../utils/images";
+import { createWhatsAppUrl } from "../../utils/whatsapp";
 
 export default function PropertyDetailsPage() {
   const { idOrSlug } = useParams();
@@ -48,7 +49,7 @@ export default function PropertyDetailsPage() {
   }
 
   const mapQuery = encodeURIComponent(`${property.village}, ${property.mandal}, Siddipet, Telangana`);
-  const whatsappText = encodeURIComponent(`Hi, I am interested in ${property.title} at ${property.village}, ${property.mandal}.`);
+  const whatsappMessage = `Hi, I am interested in ${property.title} at ${property.village}, ${property.mandal}. Please share more details.`;
 
   return (
     <main className="container-page py-10">
@@ -102,7 +103,8 @@ export default function PropertyDetailsPage() {
               Speak with the office team for site visits, owner details, and offline deal discussion.
             </p>
             <div className="mt-5 grid gap-3">
-              <a className="btn-primary" href={`https://wa.me/${OFFICE_WHATSAPP}?text=${whatsappText}`} rel="noreferrer" target="_blank">
+              <a className="btn-primary gap-2 bg-[#25D366] hover:bg-[#1ebe5d]" href={createWhatsAppUrl(whatsappMessage)} rel="noreferrer" target="_blank">
+                <WhatsAppIcon />
                 WhatsApp
               </a>
               <a className="btn-secondary" href={`tel:${property.phone}`}>Call {property.phone}</a>

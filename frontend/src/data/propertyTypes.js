@@ -13,4 +13,6 @@ export const OFFICE_PHONES = [
 export const OFFICE_PHONE = OFFICE_PHONES[0].label;
 export const OFFICE_PHONE_HREF = OFFICE_PHONES[0].href;
 export const OFFICE_WHATSAPP = "919849972116";
+export const OFFICE_EMAIL = "akulasrinu62@gmail.com";
+export const ADMIN_NAME = "Srinivas";
 export const OFFICE_ADDRESS = "Pragnapur, Gajwel Mandal, Siddipet District, Telangana";

@@ -33,4 +33,19 @@ export const inquiryRules = [
   body("message").trim().isLength({ min: 5 }).withMessage("Message is required."),
 ];
 
+export const followUpRules = [
+  body("property_id").optional({ values: "falsy" }).isInt({ min: 1 }),
+  body("inquiry_id").optional({ values: "falsy" }).isInt({ min: 1 }),
+  body("customer_name").trim().isLength({ min: 2 }).withMessage("Customer name is required."),
+  body("phone").optional({ values: "falsy" }).trim().isLength({ min: 6 }),
+  body("email").optional({ values: "falsy" }).isEmail().withMessage("Valid email is required."),
+  body("message").trim().isLength({ min: 5 }).withMessage("Follow-up message is required."),
+  body("next_action").optional({ values: "falsy" }).trim().isLength({ min: 2 }),
+];
+
+export const followUpStatusRules = [
+  body("status").isIn(["accepted", "rejected"]).withMessage("Status must be accepted or rejected."),
+  body("admin_note").optional({ values: "falsy" }).trim().isLength({ min: 2 }),
+];
+
 export const idParamRule = [param("id").isInt({ min: 1 }).withMessage("Invalid id.")];

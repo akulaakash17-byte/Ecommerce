@@ -53,3 +53,24 @@ ALTER TABLE inquiries ADD COLUMN IF NOT EXISTS message TEXT;
 ALTER TABLE inquiries ADD COLUMN IF NOT EXISTS created_at TIMESTAMPTZ NOT NULL DEFAULT NOW();
 
 CREATE INDEX IF NOT EXISTS idx_inquiries_property_id ON inquiries(property_id);
+
+CREATE TABLE IF NOT EXISTS agent_followups (
+  id SERIAL PRIMARY KEY
+);
+
+ALTER TABLE agent_followups ADD COLUMN IF NOT EXISTS agent_id INTEGER;
+ALTER TABLE agent_followups ADD COLUMN IF NOT EXISTS property_id INTEGER;
+ALTER TABLE agent_followups ADD COLUMN IF NOT EXISTS inquiry_id INTEGER;
+ALTER TABLE agent_followups ADD COLUMN IF NOT EXISTS customer_name VARCHAR(120);
+ALTER TABLE agent_followups ADD COLUMN IF NOT EXISTS phone VARCHAR(30);
+ALTER TABLE agent_followups ADD COLUMN IF NOT EXISTS email VARCHAR(160);
+ALTER TABLE agent_followups ADD COLUMN IF NOT EXISTS message TEXT;
+ALTER TABLE agent_followups ADD COLUMN IF NOT EXISTS next_action VARCHAR(180);
+ALTER TABLE agent_followups ADD COLUMN IF NOT EXISTS status VARCHAR(20) NOT NULL DEFAULT 'pending';
+ALTER TABLE agent_followups ADD COLUMN IF NOT EXISTS admin_note TEXT;
+ALTER TABLE agent_followups ADD COLUMN IF NOT EXISTS created_at TIMESTAMPTZ NOT NULL DEFAULT NOW();
+ALTER TABLE agent_followups ADD COLUMN IF NOT EXISTS updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW();
+
+CREATE INDEX IF NOT EXISTS idx_agent_followups_agent ON agent_followups(agent_id);
+CREATE INDEX IF NOT EXISTS idx_agent_followups_status ON agent_followups(status);
+CREATE INDEX IF NOT EXISTS idx_agent_followups_created_at ON agent_followups(created_at);

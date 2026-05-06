@@ -1,10 +1,14 @@
 import { NavLink, Outlet } from "react-router-dom";
-import { OFFICE_ADDRESS, OFFICE_PHONES } from "../data/propertyTypes";
+import ChatbotWidget from "../components/common/ChatbotWidget";
+import FloatingWhatsAppButton from "../components/common/FloatingWhatsAppButton";
+import { OFFICE_ADDRESS, OFFICE_EMAIL, OFFICE_PHONES } from "../data/propertyTypes";
+import { createMailtoUrl } from "../utils/email";
 
 const navItems = [
   { to: "/", label: "Home" },
   { to: "/properties", label: "Listings" },
   { to: "/about", label: "About" },
+  { to: "/faq", label: "FAQ" },
   { to: "/contact", label: "Contact" },
 ];
 
@@ -36,6 +40,8 @@ export default function PublicLayout() {
       </header>
 
       <Outlet />
+      <ChatbotWidget />
+      <FloatingWhatsAppButton />
 
       <footer className="mt-16 border-t border-slate-200 bg-slate-950 text-white">
         <div className="container-page grid gap-8 py-10 md:grid-cols-[1.2fr_1fr_1fr]">
@@ -58,8 +64,14 @@ export default function PublicLayout() {
                 </a>
               ))}
             </div>
+            <a className="mt-3 block text-sm text-slate-300 hover:text-white" href={createMailtoUrl()}>
+              {OFFICE_EMAIL}
+            </a>
             <NavLink className="mt-3 block text-sm text-slate-300 hover:text-white" to="/contact">
               Send inquiry
+            </NavLink>
+            <NavLink className="mt-2 block text-sm text-slate-300 hover:text-white" to="/faq">
+              FAQ
             </NavLink>
           </div>
         </div>

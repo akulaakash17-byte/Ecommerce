@@ -20,9 +20,9 @@ export const env = {
     password: process.env.DB_PASSWORD || "",
   },
   admin: {
-    name: process.env.ADMIN_NAME || "Office Admin",
-    phone: process.env.ADMIN_PHONE || "+91 9849972116",
-    email: process.env.ADMIN_EMAIL || "admin@siddipetrealestate.local",
+    name: process.env.ADMIN_NAME || "Srinivas",
+    phone: process.env.ADMIN_PHONE || "9849972116",
+    email: process.env.ADMIN_EMAIL || "akulasrinu62@gmail.com",
     password: process.env.ADMIN_PASSWORD || "admin12345",
   },
   cloudinary: {

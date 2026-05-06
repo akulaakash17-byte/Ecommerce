@@ -2,11 +2,13 @@ import { Navigate, Route, Routes } from "react-router-dom";
 import AdminLayout from "./layouts/AdminLayout";
 import PublicLayout from "./layouts/PublicLayout";
 import AdminInquiries from "./pages/admin/AdminInquiries";
+import AdminFollowUps from "./pages/admin/AdminFollowUps";
 import AdminOverview from "./pages/admin/AdminOverview";
 import AdminProperties from "./pages/admin/AdminProperties";
 import PropertyFormPage from "./pages/admin/PropertyFormPage";
 import AboutPage from "./pages/public/AboutPage";
 import ContactPage from "./pages/public/ContactPage";
+import FaqPage from "./pages/public/FaqPage";
 import HomePage from "./pages/public/HomePage";
 import ListingsPage from "./pages/public/ListingsPage";
 import LoginPage from "./pages/public/LoginPage";
@@ -21,6 +23,7 @@ function App() {
         <Route path="properties" element={<ListingsPage />} />
         <Route path="properties/:idOrSlug" element={<PropertyDetailsPage />} />
         <Route path="about" element={<AboutPage />} />
+        <Route path="faq" element={<FaqPage />} />
         <Route path="contact" element={<ContactPage />} />
         <Route path="login" element={<LoginPage />} />
       </Route>
@@ -32,6 +35,7 @@ function App() {
           <Route path="properties/new" element={<PropertyFormPage />} />
           <Route path="properties/:id/edit" element={<PropertyFormPage />} />
           <Route path="inquiries" element={<AdminInquiries />} />
+          <Route path="follow-ups" element={<AdminFollowUps />} />
         </Route>
       </Route>
 

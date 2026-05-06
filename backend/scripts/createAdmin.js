@@ -5,11 +5,17 @@ import { UserModel } from "../models/userModel.js";
 
 try {
   const existing = await UserModel.findByEmail(env.admin.email);
+  const password = await bcrypt.hash(env.admin.password, 12);
 
   if (existing) {
-    console.log(`Admin already exists: ${env.admin.email}`);
+    await UserModel.updateByEmail(env.admin.email, {
+      name: env.admin.name,
+      phone: env.admin.phone,
+      password,
+      role: "admin",
+    });
+    console.log(`Admin updated: ${env.admin.email}`);
   } else {
-    const password = await bcrypt.hash(env.admin.password, 12);
     await UserModel.create({
       name: env.admin.name,
       phone: env.admin.phone,

@@ -88,6 +88,12 @@ The local `.env` can define:
 
 Use those values to log in at `/login`.
 
+Current office admin defaults:
+
+- Name: `Srinivas`
+- Phone: `9849972116`
+- Email: `akulasrinu62@gmail.com`
+
 ## API Summary
 
 Auth:
@@ -125,6 +131,12 @@ Inquiries:
 
 - `POST /api/inquiries`
 - `GET /api/inquiries`
+
+Agent follow-ups:
+
+- `GET /api/follow-ups`
+- `POST /api/follow-ups`
+- `PATCH /api/follow-ups/:id/status`
 
 Dashboard:
 

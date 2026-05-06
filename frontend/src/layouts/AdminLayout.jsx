@@ -6,6 +6,7 @@ const adminItems = [
   { to: "/admin/properties", label: "Properties" },
   { to: "/admin/properties/new", label: "Add Property" },
   { to: "/admin/inquiries", label: "Inquiries" },
+  { to: "/admin/follow-ups", label: "Follow-ups" },
 ];
 
 export default function AdminLayout() {
@@ -23,7 +24,7 @@ export default function AdminLayout() {
         <aside className="border-b border-slate-200 bg-white lg:border-b-0 lg:border-r">
           <div className="flex items-center justify-between gap-4 p-5 lg:block">
             <div>
-              <p className="text-lg font-black">Office Admin</p>
+              <p className="text-lg font-black">{user?.role === "admin" ? "Office Admin" : "Agent Panel"}</p>
               <p className="text-sm font-semibold text-slate-500">{user?.name}</p>
             </div>
             <button className="btn-secondary lg:mt-6" onClick={signOut} type="button">Logout</button>

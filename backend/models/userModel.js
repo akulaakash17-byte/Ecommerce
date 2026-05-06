@@ -23,6 +23,28 @@ export const UserModel = {
     return result.rows[0];
   },
 
+  async updateByEmail(email, { name, phone, password, role }) {
+    const fields = [];
+    const values = [];
+
+    for (const [key, value] of Object.entries({ name, phone, password, role })) {
+      if (value === undefined) continue;
+      values.push(value);
+      fields.push(`${key} = $${values.length}`);
+    }
+
+    if (!fields.length) {
+      return this.findByEmail(email);
+    }
+
+    values.push(email);
+    const result = await query(
+      `UPDATE users SET ${fields.join(", ")} WHERE email = $${values.length} RETURNING ${userColumns}`,
+      values
+    );
+    return result.rows[0] || null;
+  },
+
   async list() {
     const result = await query(`SELECT ${userColumns} FROM users ORDER BY created_at DESC`);
     return result.rows;
