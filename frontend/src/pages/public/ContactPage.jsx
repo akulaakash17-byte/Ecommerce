@@ -1,5 +1,5 @@
 import InquiryForm from "../../components/forms/InquiryForm";
-import { ADMIN_NAME, OFFICE_ADDRESS, OFFICE_EMAIL, OFFICE_PHONES } from "../../data/propertyTypes";
+import { ADMIN_NAME, OFFICE_ADDRESS, OFFICE_EMAILS, OFFICE_PHONES } from "../../data/propertyTypes";
 import { createMailtoUrl } from "../../utils/email";
 
 export default function ContactPage() {
@@ -31,9 +31,13 @@ export default function ContactPage() {
             </div>
             <div className="card p-5">
               <p className="text-sm font-black uppercase text-slate-500">Email</p>
-              <a className="mt-2 block font-bold text-brand-700" href={createMailtoUrl()}>
-                {OFFICE_EMAIL}
-              </a>
+              <div className="mt-2 space-y-2">
+                {OFFICE_EMAILS.map((email) => (
+                  <a className="block font-bold text-brand-700" href={createMailtoUrl({ email })} key={email}>
+                    {email}
+                  </a>
+                ))}
+              </div>
             </div>
           </div>
         </section>

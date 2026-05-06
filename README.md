@@ -94,6 +94,32 @@ Current office admin defaults:
 - Phone: `9849972116`
 - Email: `akulasrinu62@gmail.com`
 
+Additional public contact details:
+
+- Phone: `8897422872`
+- Email: `akulaakash17@gmail.com`
+
+## Inquiry Notifications
+
+Inquiry submission can automatically notify `+91 8897422872`.
+
+For WhatsApp Cloud API, set these in `backend/.env`:
+
+- `INQUIRY_NOTIFICATION_PHONE=918897422872`
+- `WHATSAPP_NOTIFICATION_ENABLED=true`
+- `WHATSAPP_API_VERSION=v25.0`
+- `WHATSAPP_PHONE_NUMBER_ID`
+- `WHATSAPP_ACCESS_TOKEN`
+
+For an SMS gateway, set `SMS_NOTIFICATION_WEBHOOK_URL`. The backend sends:
+
+```json
+{
+  "to": "918897422872",
+  "message": "New property inquiry..."
+}
+```
+
 ## API Summary
 
 Auth:

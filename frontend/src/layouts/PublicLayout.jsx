@@ -1,7 +1,8 @@
 import { NavLink, Outlet } from "react-router-dom";
 import ChatbotWidget from "../components/common/ChatbotWidget";
 import FloatingWhatsAppButton from "../components/common/FloatingWhatsAppButton";
-import { OFFICE_ADDRESS, OFFICE_EMAIL, OFFICE_PHONES } from "../data/propertyTypes";
+import LanguageTranslator from "../components/common/LanguageTranslator";
+import { OFFICE_ADDRESS, OFFICE_EMAILS, OFFICE_PHONES } from "../data/propertyTypes";
 import { createMailtoUrl } from "../utils/email";
 
 const navItems = [
@@ -35,7 +36,10 @@ export default function PublicLayout() {
               </NavLink>
             ))}
           </div>
-          <NavLink className="btn-primary" to="/login">Agent Login</NavLink>
+          <div className="flex items-center gap-3">
+            <LanguageTranslator />
+            <NavLink className="btn-primary" to="/login">Agent Login</NavLink>
+          </div>
         </nav>
       </header>
 
@@ -64,9 +68,13 @@ export default function PublicLayout() {
                 </a>
               ))}
             </div>
-            <a className="mt-3 block text-sm text-slate-300 hover:text-white" href={createMailtoUrl()}>
-              {OFFICE_EMAIL}
-            </a>
+            <div className="mt-3 space-y-2">
+              {OFFICE_EMAILS.map((email) => (
+                <a className="block text-sm text-slate-300 hover:text-white" href={createMailtoUrl({ email })} key={email}>
+                  {email}
+                </a>
+              ))}
+            </div>
             <NavLink className="mt-3 block text-sm text-slate-300 hover:text-white" to="/contact">
               Send inquiry
             </NavLink>

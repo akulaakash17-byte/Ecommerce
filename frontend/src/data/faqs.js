@@ -65,7 +65,7 @@ export const FAQS = [
       {
         question: "How can I contact the office?",
         answer:
-          "Use the WhatsApp button, call +91 9849972116 or +91 9704061427, or submit the inquiry form on the contact or property details page.",
+          "Use the WhatsApp button, call +91 9849972116, +91 9704061427, or +91 8897422872, or submit the inquiry form on the contact or property details page.",
       },
       {
         question: "Where is the office?",
@@ -114,7 +114,7 @@ const intentAnswers = [
   {
     keywords: ["contact", "phone", "call", "whatsapp", "office"],
     answer:
-      "You can call +91 9849972116 or +91 9704061427. You can also use the WhatsApp button or submit an inquiry form.",
+      "You can call +91 9849972116, +91 9704061427, or +91 8897422872. You can also use the WhatsApp button or submit an inquiry form.",
     actionLabel: "Contact page",
     actionTo: "/contact",
   },

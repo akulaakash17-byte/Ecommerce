@@ -1,4 +1,4 @@
-import { ADMIN_NAME, OFFICE_ADDRESS, OFFICE_EMAIL, OFFICE_PHONES } from "../../data/propertyTypes";
+import { ADMIN_NAME, OFFICE_ADDRESS, OFFICE_EMAILS, OFFICE_PHONES } from "../../data/propertyTypes";
 import { createMailtoUrl } from "../../utils/email";
 
 export default function AboutPage() {
@@ -46,9 +46,11 @@ export default function AboutPage() {
               {phone.label}
             </a>
           ))}
-          <a className="inline-flex font-black text-white underline" href={createMailtoUrl()}>
-            {OFFICE_EMAIL}
-          </a>
+          {OFFICE_EMAILS.map((email) => (
+            <a className="inline-flex font-black text-white underline" href={createMailtoUrl({ email })} key={email}>
+              {email}
+            </a>
+          ))}
         </div>
       </section>
     </main>

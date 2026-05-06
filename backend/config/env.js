@@ -31,4 +31,17 @@ export const env = {
     apiSecret: process.env.CLOUDINARY_API_SECRET || "",
     folder: process.env.CLOUDINARY_FOLDER || "siddipet-real-estate",
   },
+  notifications: {
+    inquiryPhone: process.env.INQUIRY_NOTIFICATION_PHONE || "918897422872",
+    whatsapp: {
+      enabled: process.env.WHATSAPP_NOTIFICATION_ENABLED === "true",
+      apiVersion: process.env.WHATSAPP_API_VERSION || "v25.0",
+      phoneNumberId: process.env.WHATSAPP_PHONE_NUMBER_ID || "",
+      accessToken: process.env.WHATSAPP_ACCESS_TOKEN || "",
+    },
+    sms: {
+      webhookUrl: process.env.SMS_NOTIFICATION_WEBHOOK_URL || "",
+      apiKey: process.env.SMS_NOTIFICATION_API_KEY || "",
+    },
+  },
 };
