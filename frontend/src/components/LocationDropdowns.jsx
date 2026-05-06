@@ -1,79 +1,100 @@
-import React, { useEffect, useState } from "react";
+import { useMemo, useState } from "react";
 import Select from "react-select";
-import {
-  getDistricts,
-  getMandals,
-  getVillages,
-} from "../api/locationApi";
+import { useLocationCache } from "../hooks/useLocationCache";
 
 const LocationDropdowns = () => {
-  const [districts, setDistricts] = useState([]);
-  const [mandals, setMandals] = useState([]);
-  const [villages, setVillages] = useState([]);
-
   const [district, setDistrict] = useState(null);
   const [mandal, setMandal] = useState(null);
   const [village, setVillage] = useState(null);
+  const {
+    districtOptions,
+    mandalOptions,
+    villageOptions,
+    loading,
+    error,
+    loadMandals,
+    loadVillages,
+    retryDistricts,
+  } = useLocationCache();
 
-  // Load districts
-  useEffect(() => {
-    getDistricts().then((res) => {
-      setDistricts(res.data);
-    });
-  }, []);
+  const handleDistrictChange = (selectedDistrict) => {
+    setDistrict(selectedDistrict);
+    setMandal(null);
+    setVillage(null);
+    loadMandals(selectedDistrict?.value);
+  };
 
-  // Load mandals
-  useEffect(() => {
-    if (!district) return;
+  const handleMandalChange = (selectedMandal) => {
+    setMandal(selectedMandal);
+    setVillage(null);
+    loadVillages(district?.value, selectedMandal?.value);
+  };
 
-    getMandals(district.value).then((res) => {
-      setMandals(res.data);
-      setMandal(null);
-      setVillage(null);
-    });
-  }, [district]);
-
-  // Load villages
-  useEffect(() => {
-    if (!mandal) return;
-
-    getVillages(mandal.value).then((res) => {
-      setVillages(res.data);
-      setVillage(null);
-    });
-  }, [mandal]);
+  const selectedLocation = useMemo(() => {
+    return [district?.label, mandal?.label, village?.label].filter(Boolean).join(", ");
+  }, [district, mandal, village]);
 
   return (
-    <div style={{ width: "300px" }}>
-      <h2>Select Location</h2>
+    <section className="location-panel" aria-label="Location selector">
+      <div className="location-panel__header">
+        <div>
+          <p className="eyebrow">Property Search</p>
+          <h2>Select Location</h2>
+        </div>
+        {error ? (
+          <button className="text-button" type="button" onClick={retryDistricts}>
+            Retry
+          </button>
+        ) : null}
+      </div>
 
-      <Select
-        placeholder="District"
-        options={districts.map(d => ({ label: d, value: d }))}
-        value={district}
-        onChange={setDistrict}
-      />
+      {error ? <p className="form-error">{error}</p> : null}
 
-      <br />
+      <label>
+        <span>District</span>
+        <Select
+          placeholder="Choose district"
+          options={districtOptions}
+          value={district}
+          onChange={handleDistrictChange}
+          isClearable
+          isLoading={loading.districts}
+          noOptionsMessage={() => "No districts found"}
+        />
+      </label>
 
-      <Select
-        placeholder="Mandal"
-        options={mandals.map(m => ({ label: m, value: m }))}
-        value={mandal}
-        onChange={setMandal}
-        isDisabled={!district}
-      />
+      <label>
+        <span>Mandal</span>
+        <Select
+          placeholder="Choose mandal"
+          options={mandalOptions}
+          value={mandal}
+          onChange={handleMandalChange}
+          isClearable
+          isDisabled={!district}
+          isLoading={loading.mandals}
+          noOptionsMessage={() => "Select a district first"}
+        />
+      </label>
 
-      <br />
+      <label>
+        <span>Village</span>
+        <Select
+          placeholder="Choose village"
+          options={villageOptions}
+          value={village}
+          onChange={setVillage}
+          isClearable
+          isDisabled={!mandal}
+          isLoading={loading.villages}
+          noOptionsMessage={() => "Select a mandal first"}
+        />
+      </label>
 
-      <Select
-        placeholder="Village"
-        options={villages.map(v => ({ label: v, value: v }))}
-        value={village}
-        onChange={setVillage}
-        isDisabled={!mandal}
-      />
-    </div>
+      {selectedLocation ? (
+        <p className="selection-summary">Selected: {selectedLocation}</p>
+      ) : null}
+    </section>
   );
 };
 

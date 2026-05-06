@@ -1,9 +1,13 @@
 import axios from "axios";
 
-const API = "http://localhost:5000/api/location";
+const api = axios.create({
+  baseURL: "/api/location",
+});
 
-export const getDistricts = () => axios.get(`${API}/districts`);
+export const getDistricts = () => api.get("/districts");
 export const getMandals = (district) =>
-  axios.get(`${API}/mandals/${district}`);
-export const getVillages = (mandal) =>
-  axios.get(`${API}/villages/${mandal}`);
+  api.get(`/mandals/${encodeURIComponent(district)}`);
+export const getVillages = (district, mandal) =>
+  api.get("/villages", {
+    params: { district, mandal },
+  });
