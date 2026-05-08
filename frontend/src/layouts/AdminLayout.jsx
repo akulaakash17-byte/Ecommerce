@@ -7,14 +7,15 @@ const adminItems = [
   { to: "/admin/properties/new", label: "Add Property" },
   { to: "/admin/inquiries", label: "Inquiries" },
   { to: "/admin/follow-ups", label: "Follow-ups" },
+  { to: "/admin/users", label: "Users", adminOnly: true },
 ];
 
 export default function AdminLayout() {
   const navigate = useNavigate();
   const { logout, user } = useAuth();
 
-  const signOut = () => {
-    logout();
+  const signOut = async () => {
+    await logout();
     navigate("/");
   };
 
@@ -30,7 +31,7 @@ export default function AdminLayout() {
             <button className="btn-secondary lg:mt-6" onClick={signOut} type="button">Logout</button>
           </div>
           <nav className="flex gap-2 overflow-x-auto px-4 pb-4 lg:grid lg:px-5">
-            {adminItems.map((item) => (
+            {adminItems.filter((item) => !item.adminOnly || user?.role === "admin").map((item) => (
               <NavLink
                 className={({ isActive }) =>
                   `whitespace-nowrap rounded-md px-3 py-2 text-sm font-extrabold transition ${

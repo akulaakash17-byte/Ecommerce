@@ -40,6 +40,21 @@ export const FAQS = [
     ],
   },
   {
+    category: "RRR Road",
+    items: [
+      {
+        question: "What is RRR Road?",
+        answer:
+          "RRR means Hyderabad Regional Ring Road, a planned regional corridor around Hyderabad. For Siddipet-side buyers, the commonly discussed areas include Gajwel, Pragnapur, Jagdevpur, Markook, Wargal, and nearby villages.",
+      },
+      {
+        question: "Which Siddipet mandals are connected with RRR?",
+        answer:
+          "Public RRR alignment references mention Gajwel, Jagdevpur, Markook, Raipole or Rayapol, and Wargal or Vargal mandals in Siddipet district. Always verify the exact village and survey number before making any property decision.",
+      },
+    ],
+  },
+  {
     category: "Listings",
     items: [
       {
@@ -79,6 +94,7 @@ export const FAQS = [
 export const CHATBOT_PROMPTS = [
   "How do I schedule a site visit?",
   "Show me listings",
+  "RRR road information",
   "How can I list my property?",
   "Do you take online payments?",
   "Contact office",
@@ -117,6 +133,13 @@ const intentAnswers = [
       "You can call +91 9849972116, +91 9704061427, or +91 8897422872. You can also use the WhatsApp button or submit an inquiry form.",
     actionLabel: "Contact page",
     actionTo: "/contact",
+  },
+  {
+    keywords: ["rrr", "regional ring road", "ring road", "corridor", "pragnapur"],
+    answer:
+      "Open the RRR Road page for latest updates, a route-plan view, Siddipet mandals, villages, and buyer verification checks around the Hyderabad Regional Ring Road.",
+    actionLabel: "Open RRR Road page",
+    actionTo: "/rrr-road",
   },
   {
     keywords: ["mandal", "village", "area", "location", "gajwel", "pragnapur", "siddipet"],

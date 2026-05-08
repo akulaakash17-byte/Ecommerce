@@ -6,12 +6,40 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 dotenv.config({ path: path.resolve(__dirname, "../.env") });
 
+const isProduction = process.env.NODE_ENV === "production";
+const jwtSecret = process.env.JWT_SECRET || "change-me";
+
+function splitCsv(value) {
+  return String(value || "")
+    .split(",")
+    .map((item) => item.trim())
+    .filter(Boolean);
+}
+
+function requireStrongProductionSecret(name, value) {
+  if (!isProduction) return;
+
+  if (!value || value === "change-me" || value.length < 32) {
+    throw new Error(`${name} must be set to a unique value of at least 32 characters in production.`);
+  }
+}
+
+requireStrongProductionSecret("JWT_SECRET", jwtSecret);
+
 export const env = {
   nodeEnv: process.env.NODE_ENV || "development",
+  isProduction,
   port: Number(process.env.PORT || 5050),
   clientUrl: process.env.CLIENT_URL || "http://127.0.0.1:5173",
-  jwtSecret: process.env.JWT_SECRET || "change-me",
+  clientUrls: splitCsv(process.env.CLIENT_URLS || process.env.CLIENT_URL || "http://127.0.0.1:5173"),
+  jwtSecret,
   jwtExpiresIn: process.env.JWT_EXPIRES_IN || "7d",
+  authCookieName: process.env.AUTH_COOKIE_NAME || "rew_session",
+  maxJsonBodySize: process.env.MAX_JSON_BODY_SIZE || "100kb",
+  upload: {
+    maxFileSizeMb: Number(process.env.UPLOAD_MAX_FILE_SIZE_MB || 5),
+    maxFiles: Number(process.env.UPLOAD_MAX_FILES || 10),
+  },
   db: {
     host: process.env.DB_HOST || "127.0.0.1",
     port: Number(process.env.DB_PORT || 5432),
@@ -32,7 +60,10 @@ export const env = {
     folder: process.env.CLOUDINARY_FOLDER || "siddipet-real-estate",
   },
   notifications: {
-    inquiryPhone: process.env.INQUIRY_NOTIFICATION_PHONE || "918897422872",
+    inquiryPhones: (process.env.INQUIRY_NOTIFICATION_PHONES || process.env.INQUIRY_NOTIFICATION_PHONE || "918897422872")
+      .split(",")
+      .map((phone) => phone.trim())
+      .filter(Boolean),
     whatsapp: {
       enabled: process.env.WHATSAPP_NOTIFICATION_ENABLED === "true",
       apiVersion: process.env.WHATSAPP_API_VERSION || "v25.0",
@@ -42,6 +73,22 @@ export const env = {
     sms: {
       webhookUrl: process.env.SMS_NOTIFICATION_WEBHOOK_URL || "",
       apiKey: process.env.SMS_NOTIFICATION_API_KEY || "",
+    },
+    twilioSms: {
+      enabled: process.env.TWILIO_SMS_NOTIFICATION_ENABLED === "true",
+      accountSid: process.env.TWILIO_ACCOUNT_SID || "",
+      authToken: process.env.TWILIO_AUTH_TOKEN || "",
+      fromNumber: process.env.TWILIO_SMS_FROM_NUMBER || process.env.TWILIO_FROM_NUMBER || "",
+    },
+    email: {
+      enabled: process.env.EMAIL_NOTIFICATION_ENABLED === "true",
+      to: process.env.INQUIRY_NOTIFICATION_EMAIL || "akulaakash17@gmail.com",
+      from: process.env.EMAIL_FROM || process.env.SMTP_USER || "",
+      host: process.env.SMTP_HOST || "",
+      port: Number(process.env.SMTP_PORT || 587),
+      secure: process.env.SMTP_SECURE === "true",
+      user: process.env.SMTP_USER || "",
+      password: process.env.SMTP_PASSWORD || "",
     },
   },
 };

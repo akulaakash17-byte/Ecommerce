@@ -33,6 +33,11 @@ export const inquiryRules = [
   body("message").trim().isLength({ min: 5 }).withMessage("Message is required."),
 ];
 
+export const inquiryStatusRules = [
+  body("status").isIn(["new", "contacted", "closed"]).withMessage("Status must be new, contacted, or closed."),
+  body("status_note").optional({ values: "falsy" }).trim().isLength({ min: 2 }),
+];
+
 export const followUpRules = [
   body("property_id").optional({ values: "falsy" }).isInt({ min: 1 }),
   body("inquiry_id").optional({ values: "falsy" }).isInt({ min: 1 }),

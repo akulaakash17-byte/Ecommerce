@@ -50,9 +50,13 @@ ALTER TABLE inquiries ADD COLUMN IF NOT EXISTS property_id INTEGER;
 ALTER TABLE inquiries ADD COLUMN IF NOT EXISTS name VARCHAR(120);
 ALTER TABLE inquiries ADD COLUMN IF NOT EXISTS phone VARCHAR(30);
 ALTER TABLE inquiries ADD COLUMN IF NOT EXISTS message TEXT;
+ALTER TABLE inquiries ADD COLUMN IF NOT EXISTS status VARCHAR(20) NOT NULL DEFAULT 'new';
+ALTER TABLE inquiries ADD COLUMN IF NOT EXISTS status_note TEXT;
+ALTER TABLE inquiries ADD COLUMN IF NOT EXISTS updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW();
 ALTER TABLE inquiries ADD COLUMN IF NOT EXISTS created_at TIMESTAMPTZ NOT NULL DEFAULT NOW();
 
 CREATE INDEX IF NOT EXISTS idx_inquiries_property_id ON inquiries(property_id);
+CREATE INDEX IF NOT EXISTS idx_inquiries_status ON inquiries(status);
 
 CREATE TABLE IF NOT EXISTS agent_followups (
   id SERIAL PRIMARY KEY
@@ -74,3 +78,18 @@ ALTER TABLE agent_followups ADD COLUMN IF NOT EXISTS updated_at TIMESTAMPTZ NOT 
 CREATE INDEX IF NOT EXISTS idx_agent_followups_agent ON agent_followups(agent_id);
 CREATE INDEX IF NOT EXISTS idx_agent_followups_status ON agent_followups(status);
 CREATE INDEX IF NOT EXISTS idx_agent_followups_created_at ON agent_followups(created_at);
+
+CREATE TABLE IF NOT EXISTS notification_logs (
+  id SERIAL PRIMARY KEY
+);
+
+ALTER TABLE notification_logs ADD COLUMN IF NOT EXISTS inquiry_id INTEGER;
+ALTER TABLE notification_logs ADD COLUMN IF NOT EXISTS channel VARCHAR(40);
+ALTER TABLE notification_logs ADD COLUMN IF NOT EXISTS recipient VARCHAR(180);
+ALTER TABLE notification_logs ADD COLUMN IF NOT EXISTS status VARCHAR(20) NOT NULL DEFAULT 'skipped';
+ALTER TABLE notification_logs ADD COLUMN IF NOT EXISTS provider_response TEXT;
+ALTER TABLE notification_logs ADD COLUMN IF NOT EXISTS error_message TEXT;
+ALTER TABLE notification_logs ADD COLUMN IF NOT EXISTS created_at TIMESTAMPTZ NOT NULL DEFAULT NOW();
+
+CREATE INDEX IF NOT EXISTS idx_notification_logs_inquiry ON notification_logs(inquiry_id);
+CREATE INDEX IF NOT EXISTS idx_notification_logs_status ON notification_logs(status);

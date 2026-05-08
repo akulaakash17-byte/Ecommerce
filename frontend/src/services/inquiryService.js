@@ -10,4 +10,9 @@ export const inquiryService = {
     const { data } = await apiClient.get("/inquiries", { params });
     return data;
   },
+
+  async updateStatus(id, payload) {
+    const { data } = await apiClient.patch(`/inquiries/${id}/status`, payload);
+    return data;
+  },
 };

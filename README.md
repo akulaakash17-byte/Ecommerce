@@ -63,6 +63,8 @@ Prepare database tables:
 npm --prefix backend run db:setup
 ```
 
+`db:setup` creates the base schema and applies SQL migrations from `backend/migrations`.
+
 Create the first admin user:
 
 ```bash
@@ -101,11 +103,11 @@ Additional public contact details:
 
 ## Inquiry Notifications
 
-Inquiry submission can automatically notify `+91 8897422872`.
+Inquiry submission can automatically notify `+91 8897422872` and `+91 9347332792`.
 
 For WhatsApp Cloud API, set these in `backend/.env`:
 
-- `INQUIRY_NOTIFICATION_PHONE=918897422872`
+- `INQUIRY_NOTIFICATION_PHONES=918897422872,919347332792`
 - `WHATSAPP_NOTIFICATION_ENABLED=true`
 - `WHATSAPP_API_VERSION=v25.0`
 - `WHATSAPP_PHONE_NUMBER_ID`
@@ -120,12 +122,38 @@ For an SMS gateway, set `SMS_NOTIFICATION_WEBHOOK_URL`. The backend sends:
 }
 ```
 
+For multiple SMS webhook recipients, the backend posts once per phone in `INQUIRY_NOTIFICATION_PHONES`.
+
+For Twilio SMS, set these in `backend/.env`:
+
+- `TWILIO_SMS_NOTIFICATION_ENABLED=true`
+- `TWILIO_ACCOUNT_SID`
+- `TWILIO_AUTH_TOKEN`
+- `TWILIO_SMS_FROM_NUMBER`
+
+Twilio trial accounts can only send SMS to verified recipient phone numbers.
+
+For email notifications, set these in `backend/.env`:
+
+- `EMAIL_NOTIFICATION_ENABLED=true`
+- `INQUIRY_NOTIFICATION_EMAIL=akulaakash17@gmail.com`
+- `EMAIL_FROM`
+- `SMTP_HOST`
+- `SMTP_PORT`
+- `SMTP_SECURE`
+- `SMTP_USER`
+- `SMTP_PASSWORD`
+
+For Gmail SMTP, use `SMTP_HOST=smtp.gmail.com`, `SMTP_PORT=587`, `SMTP_SECURE=false`, and a Gmail App Password for `SMTP_PASSWORD`.
+
 ## API Summary
 
 Auth:
 
 - `POST /api/auth/login`
 - `GET /api/auth/me`
+- `POST /api/auth/logout`
+- `GET /api/auth/users`
 - `POST /api/auth/users`
 
 Locations:
@@ -157,6 +185,7 @@ Inquiries:
 
 - `POST /api/inquiries`
 - `GET /api/inquiries`
+- `PATCH /api/inquiries/:id/status`
 
 Agent follow-ups:
 
@@ -168,6 +197,10 @@ Dashboard:
 
 - `GET /api/dashboard/overview`
 
+Notifications:
+
+- `GET /api/notifications`
+
 ## Business Rules
 
 - No payments.
@@ -175,3 +208,67 @@ Dashboard:
 - No online booking.
 - Buyers contact the office through WhatsApp, phone calls, or inquiry forms.
 - Agents/admins manage listings and mark properties as available or sold.
+
+
+<!-- next steps -->
+
+It is good for a demo / early live version, but I would not call it fully production-level yet.
+
+Main improvements I’d recommend beyond data:
+
+Translation
+Google Translate widget is okay for quick use, but for production it can be inconsistent and depends on Google script loading. Better production option: use app-controlled translations with i18next for Telugu/Hindi labels, buttons, forms, and main content.
+
+Inquiry Notification
+Code is ready, but real production needs configured WhatsApp Cloud API or SMS provider credentials. Also add notification logs/status so admin can see if a message failed.
+
+Security
+Add stronger production checks:
+
+Strong JWT_SECRET
+HTTPS-only deployment
+Secure CORS domain instead of broad localhost defaults
+Rate limits per sensitive route
+File upload size/type validation is especially important
+
+Production security settings now supported in `backend/.env`:
+
+- `NODE_ENV=production`
+- `JWT_SECRET` must be unique and at least 32 characters
+- `CLIENT_URLS=https://yourdomain.com,https://www.yourdomain.com`
+- `MAX_JSON_BODY_SIZE=100kb`
+- `UPLOAD_MAX_FILE_SIZE_MB=5`
+- `UPLOAD_MAX_FILES=10`
+
+The API will reject unknown CORS origins, disable `x-powered-by`, apply stricter login rate limits, use HTTP-only session cookies, and allow only JPG, PNG, and WebP property uploads.
+Database
+Schema now includes migrations, foreign-key constraints for new data, inquiry status fields, and notification logs. Production should still add:
+
+More NOT NULL constraints for required fields
+Backups
+Database backups can be created and restored with:
+
+```bash
+npm --prefix backend run db:backup
+npm --prefix backend run db:restore -- backend/backups/your-backup.dump
+```
+
+Backups are saved in `backend/backups` and ignored by Git. For production, schedule daily backups and copy them to private cloud storage.
+Admin Features
+Inquiry status workflow and admin user creation are now in the dashboard. A remaining improvement is assigning inquiries to specific agents.
+
+Testing
+Current lint/build passes and backend unit tests are available with:
+
+```bash
+npm test
+```
+
+Production should still add broader:
+
+Backend API tests for inquiry/property creation
+Frontend smoke tests for contact form/listings/login
+SEO and Performance
+Basic meta tags, sitemap, robots file, canonical URLs, and property structured data are in place. Remaining improvements are dynamic sitemap generation, image optimization, and production analytics.
+
+So: yes, enough to show clients and use carefully, but for serious production I’d next improve translation, notification reliability, database constraints, and admin inquiry workflow.

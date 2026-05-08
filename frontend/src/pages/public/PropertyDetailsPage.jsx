@@ -3,6 +3,7 @@ import { useParams } from "react-router-dom";
 import ErrorMessage from "../../components/common/ErrorMessage";
 import WhatsAppIcon from "../../components/common/WhatsAppIcon";
 import InquiryForm from "../../components/forms/InquiryForm";
+import { useDocumentMeta } from "../../hooks/useDocumentMeta";
 import { propertyService } from "../../services/propertyService";
 import { formatPrice } from "../../utils/formatters";
 import { FALLBACK_PROPERTY_IMAGE, resolveImage } from "../../utils/images";
@@ -40,6 +41,14 @@ export default function PropertyDetailsPage() {
     return property.images.map(resolveImage);
   }, [property]);
 
+  useDocumentMeta({
+    title: property ? `${property.title} | Siddipet Realty` : "Property Details | Siddipet Realty",
+    description: property
+      ? `${property.property_type} in ${property.village}, ${property.mandal}. Contact Siddipet Realty for site visit and offline property support.`
+      : "View Siddipet property details, images, location, price, and contact options.",
+    canonicalPath: property ? `/properties/${property.slug || property.id}` : `/properties/${idOrSlug}`,
+  });
+
   if (loading) {
     return <main className="container-page py-10"><div className="h-96 animate-pulse rounded-lg bg-slate-200" /></main>;
   }
@@ -50,9 +59,30 @@ export default function PropertyDetailsPage() {
 
   const mapQuery = encodeURIComponent(`${property.village}, ${property.mandal}, Siddipet, Telangana`);
   const whatsappMessage = `Hi, I am interested in ${property.title} at ${property.village}, ${property.mandal}. Please share more details.`;
+  const propertyJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "RealEstateListing",
+    name: property.title,
+    description: property.description,
+    image: images,
+    url: `${window.location.origin}/properties/${property.slug || property.id}`,
+    address: {
+      "@type": "PostalAddress",
+      addressLocality: property.village,
+      addressRegion: "Telangana",
+      addressCountry: "IN",
+    },
+    offers: {
+      "@type": "Offer",
+      price: Number(property.price || 0),
+      priceCurrency: "INR",
+      availability: property.status === "sold" ? "https://schema.org/SoldOut" : "https://schema.org/InStock",
+    },
+  };
 
   return (
     <main className="container-page py-10">
+      <script type="application/ld+json">{JSON.stringify(propertyJsonLd)}</script>
       <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_380px]">
         <section>
           <div className="overflow-hidden rounded-lg border border-slate-200 bg-white">

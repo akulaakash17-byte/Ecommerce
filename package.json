@@ -9,6 +9,7 @@
     "dev:api": "npm --prefix backend start",
     "build": "vite build",
     "lint": "eslint .",
+    "test": "npm --prefix backend test",
     "preview": "vite preview"
   },
   "dependencies": {

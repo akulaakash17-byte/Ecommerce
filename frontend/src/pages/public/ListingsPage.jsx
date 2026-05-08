@@ -6,6 +6,7 @@ import { PropertyCardSkeleton } from "../../components/common/LoadingSkeleton";
 import Pagination from "../../components/common/Pagination";
 import PropertyCard from "../../components/properties/PropertyCard";
 import PropertyFilters from "../../components/properties/PropertyFilters";
+import { useDocumentMeta } from "../../hooks/useDocumentMeta";
 import { propertyService } from "../../services/propertyService";
 
 const emptyFilters = {
@@ -18,6 +19,12 @@ const emptyFilters = {
 };
 
 export default function ListingsPage() {
+  useDocumentMeta({
+    title: "Property Listings | Siddipet Realty",
+    description: "Search Siddipet district properties by mandal, village, type, and price. Contact the office for site visits and offline deal support.",
+    canonicalPath: "/properties",
+  });
+
   const [searchParams, setSearchParams] = useSearchParams();
   const [filters, setFilters] = useState(() => ({
     ...emptyFilters,

@@ -3,10 +3,21 @@ import { env } from "../config/env.js";
 import { UserModel } from "../models/userModel.js";
 import { ApiError } from "./errorMiddleware.js";
 
+function getCookieValue(req, name) {
+  const cookies = req.headers.cookie || "";
+  const cookie = cookies
+    .split(";")
+    .map((item) => item.trim())
+    .find((item) => item.startsWith(`${name}=`));
+
+  return cookie ? decodeURIComponent(cookie.slice(name.length + 1)) : "";
+}
+
 export async function protect(req, res, next) {
   try {
     const header = req.headers.authorization || "";
-    const token = header.startsWith("Bearer ") ? header.slice(7) : "";
+    const bearerToken = header.startsWith("Bearer ") ? header.slice(7) : "";
+    const token = bearerToken || getCookieValue(req, env.authCookieName);
 
     if (!token) {
       throw new ApiError(401, "Authentication token is required.");

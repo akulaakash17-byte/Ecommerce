@@ -1,45 +1,52 @@
-import { createContext, useContext, useMemo, useState } from "react";
+import { createContext, useContext, useEffect, useMemo, useState } from "react";
 import { authService } from "../services/authService";
 
 const AuthContext = createContext(null);
 
-const storedUser = () => {
-  try {
-    return JSON.parse(localStorage.getItem("rew_user"));
-  } catch {
-    return null;
-  }
-};
-
 export function AuthProvider({ children }) {
-  const [user, setUser] = useState(storedUser);
-  const [token, setToken] = useState(localStorage.getItem("rew_token"));
+  const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    let active = true;
+
+    authService
+      .me()
+      .then((currentUser) => {
+        if (active) setUser(currentUser);
+      })
+      .catch(() => {
+        if (active) setUser(null);
+      })
+      .finally(() => {
+        if (active) setLoading(false);
+      });
+
+    return () => {
+      active = false;
+    };
+  }, []);
 
   const login = async (credentials) => {
     const result = await authService.login(credentials);
-    localStorage.setItem("rew_token", result.token);
-    localStorage.setItem("rew_user", JSON.stringify(result.user));
-    setToken(result.token);
     setUser(result.user);
     return result.user;
   };
 
-  const logout = () => {
-    localStorage.removeItem("rew_token");
-    localStorage.removeItem("rew_user");
-    setToken(null);
+  const logout = async () => {
+    await authService.logout().catch(() => {});
     setUser(null);
   };
 
   const value = useMemo(
     () => ({
       user,
-      token,
-      isAuthenticated: Boolean(token && user),
+      loading,
+      isAuthenticated: Boolean(user),
       login,
       logout,
     }),
-    [token, user]
+    [loading, user]
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

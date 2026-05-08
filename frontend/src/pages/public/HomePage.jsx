@@ -5,11 +5,18 @@ import { PropertyCardSkeleton } from "../../components/common/LoadingSkeleton";
 import PropertyCard from "../../components/properties/PropertyCard";
 import { FAQS } from "../../data/faqs";
 import { OFFICE_ADDRESS } from "../../data/propertyTypes";
+import { useDocumentMeta } from "../../hooks/useDocumentMeta";
 import { locationService } from "../../services/locationService";
 import { propertyService } from "../../services/propertyService";
 import { HERO_IMAGE } from "../../utils/images";
 
 export default function HomePage() {
+  useDocumentMeta({
+    title: "Siddipet Realty | Properties in Siddipet District",
+    description: "Discover verified Siddipet district plots, land, houses, villas, and commercial properties with offline support from the Pragnapur office.",
+    canonicalPath: "/",
+  });
+
   const navigate = useNavigate();
   const [q, setQ] = useState("");
   const [mandals, setMandals] = useState([]);

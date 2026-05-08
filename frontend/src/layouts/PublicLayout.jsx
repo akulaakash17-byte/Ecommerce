@@ -8,6 +8,7 @@ import { createMailtoUrl } from "../utils/email";
 const navItems = [
   { to: "/", label: "Home" },
   { to: "/properties", label: "Listings" },
+  { to: "/rrr-road", label: "RRR" },
   { to: "/about", label: "About" },
   { to: "/faq", label: "FAQ" },
   { to: "/contact", label: "Contact" },
@@ -80,6 +81,9 @@ export default function PublicLayout() {
             </NavLink>
             <NavLink className="mt-2 block text-sm text-slate-300 hover:text-white" to="/faq">
               FAQ
+            </NavLink>
+            <NavLink className="mt-2 block text-sm text-slate-300 hover:text-white" to="/rrr-road">
+              RRR Road
             </NavLink>
           </div>
         </div>
