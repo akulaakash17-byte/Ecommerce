@@ -35,6 +35,7 @@ export const env = {
   jwtSecret,
   jwtExpiresIn: process.env.JWT_EXPIRES_IN || "7d",
   authCookieName: process.env.AUTH_COOKIE_NAME || "rew_session",
+  authCookieSameSite: process.env.AUTH_COOKIE_SAME_SITE || (isProduction ? "none" : "lax"),
   maxJsonBodySize: process.env.MAX_JSON_BODY_SIZE || "100kb",
   upload: {
     maxFileSizeMb: Number(process.env.UPLOAD_MAX_FILE_SIZE_MB || 5),
