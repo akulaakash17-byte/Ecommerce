@@ -1,7 +1,7 @@
 import { ApiError } from "../middleware/errorMiddleware.js";
 import { PropertyModel } from "../models/propertyModel.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
-import { storeUploadedImages } from "../utils/imageStorage.js";
+import { storeUploadedImages, storeUploadedVideo } from "../utils/imageStorage.js";
 import { createBaseSlug } from "../utils/slug.js";
 
 async function createUniqueSlug(property, ignoredId = null) {
@@ -33,6 +33,10 @@ function parseExistingImages(value) {
   }
 }
 
+function getUploadedImages(files = {}) {
+  return [...(files.images || []), ...(files["images[]"] || [])];
+}
+
 export const listProperties = asyncHandler(async (req, res) => {
   const filters = {
     ...req.query,
@@ -53,11 +57,13 @@ export const getProperty = asyncHandler(async (req, res) => {
 });
 
 export const createProperty = asyncHandler(async (req, res) => {
-  const images = await storeUploadedImages(req.files);
+  const images = await storeUploadedImages(getUploadedImages(req.files));
+  const videoUrl = await storeUploadedVideo(req.files?.video);
   const propertyInput = {
     ...req.body,
     district: req.body.district || "Siddipet",
     images,
+    video_url: videoUrl,
     is_verified: parseBoolean(req.body.is_verified),
     created_by: req.user.id,
   };
@@ -75,8 +81,10 @@ export const updateProperty = asyncHandler(async (req, res) => {
     throw new ApiError(404, "Property not found.");
   }
 
-  const uploadedImages = await storeUploadedImages(req.files);
+  const uploadedImages = await storeUploadedImages(getUploadedImages(req.files));
+  const uploadedVideo = await storeUploadedVideo(req.files?.video);
   const existingImages = parseExistingImages(req.body.existingImages);
+  const existingVideo = req.body.existingVideo || "";
   const nextImages = [...(existingImages || current.images || []), ...uploadedImages];
   const shouldRefreshSlug =
     req.body.title !== current.title || req.body.mandal !== current.mandal || req.body.village !== current.village;
@@ -91,6 +99,7 @@ export const updateProperty = asyncHandler(async (req, res) => {
     property_type: req.body.property_type,
     land_area: req.body.land_area || "",
     images: nextImages,
+    video_url: uploadedVideo || existingVideo,
     owner_name: req.body.owner_name || "",
     phone: req.body.phone,
     is_verified: parseBoolean(req.body.is_verified),

@@ -1,6 +1,7 @@
 import { useRef, useState } from "react";
 import { Link } from "react-router-dom";
-import { CHATBOT_PROMPTS, getChatbotReply } from "../../data/faqs";
+import { CHATBOT_PROMPTS } from "../../data/faqs";
+import { chatbotService } from "../../services/chatbotService";
 import ChatIcon from "./ChatIcon";
 
 const welcomeMessage = {
@@ -13,18 +14,44 @@ export default function ChatbotWidget() {
   const [open, setOpen] = useState(false);
   const [input, setInput] = useState("");
   const [messages, setMessages] = useState([welcomeMessage]);
+  const [loading, setLoading] = useState(false);
 
-  const addConversation = (question) => {
+  const addConversation = async (question) => {
     const trimmed = question.trim();
-    if (!trimmed) return;
+    if (!trimmed || loading) return;
 
-    const reply = getChatbotReply(trimmed);
-    setMessages((current) => [
-      ...current,
-      { role: "user", text: trimmed },
-      { role: "assistant", text: reply.answer, actionLabel: reply.actionLabel, actionTo: reply.actionTo },
-    ]);
+    const userMessage = { role: "user", text: trimmed };
+    const currentHistory = messages.filter((message) => ["user", "assistant"].includes(message.role));
+
+    setMessages((current) => [...current, userMessage]);
     setInput("");
+    setLoading(true);
+
+    try {
+      const response = await chatbotService.reply({
+        message: trimmed,
+        history: currentHistory,
+      });
+      setMessages((current) => [
+        ...current,
+        {
+          role: "assistant",
+          text: response.reply,
+          actionLabel: response.actionLabel,
+          actionTo: response.actionTo,
+        },
+      ]);
+    } catch (error) {
+      setMessages((current) => [
+        ...current,
+        {
+          role: "assistant",
+          text: error.message || "AI chatbot is not connected. Please check the Groq API key in backend settings.",
+        },
+      ]);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const submit = (event) => {
@@ -83,6 +110,11 @@ export default function ChatbotWidget() {
                 ) : null}
               </div>
             ))}
+            {loading ? (
+              <div className="max-w-[88%] rounded-lg bg-white px-3 py-2 text-sm font-semibold leading-6 text-slate-500 shadow-sm">
+                Thinking...
+              </div>
+            ) : null}
           </div>
 
           <div className="border-t border-slate-200 bg-white p-3">
@@ -91,6 +123,7 @@ export default function ChatbotWidget() {
                 <button
                   className="shrink-0 rounded-full border border-slate-200 px-3 py-1.5 text-xs font-bold text-slate-700 hover:border-brand-600 hover:text-brand-700"
                   key={prompt}
+                  disabled={loading}
                   onClick={() => addConversation(prompt)}
                   type="button"
                 >
@@ -101,12 +134,15 @@ export default function ChatbotWidget() {
             <form className="flex gap-2" onSubmit={submit}>
               <input
                 className="field min-w-0 flex-1 py-2"
+                disabled={loading}
                 onChange={(event) => setInput(event.target.value)}
                 placeholder="Ask a question..."
                 ref={inputRef}
                 value={input}
               />
-              <button className="btn-primary px-3 py-2" type="submit">Send</button>
+              <button className="btn-primary px-3 py-2" disabled={loading} type="submit">
+                {loading ? "Wait" : "Send"}
+              </button>
             </form>
           </div>
         </div>
@@ -114,7 +150,7 @@ export default function ChatbotWidget() {
 
       <button
         aria-label="Open FAQ chatbot"
-        className="inline-flex h-14 w-14 items-center justify-center rounded-full bg-slate-950 text-white shadow-soft transition hover:-translate-y-1 hover:bg-brand-700 focus:outline-none focus:ring-4 focus:ring-slate-300"
+        className="inline-flex h-14 w-14 items-center justify-center rounded-full bg-brand-700 text-white shadow-soft ring-4 ring-white transition hover:-translate-y-1 hover:bg-brand-600 focus:outline-none focus:ring-brand-100"
         onClick={toggleOpen}
         type="button"
       >

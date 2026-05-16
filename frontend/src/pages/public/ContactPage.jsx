@@ -15,11 +15,11 @@ export default function ContactPage() {
             Send your requirement, call the office, or visit Pragnapur for offline property guidance.
           </p>
           <div className="mt-8 space-y-4">
-            <div className="card p-5">
+            <div className="card p-6">
               <p className="text-sm font-black uppercase text-slate-500">Office address</p>
               <p className="mt-2 font-bold">{OFFICE_ADDRESS}</p>
             </div>
-            <div className="card p-5">
+            <div className="card p-6">
               <p className="text-sm font-black uppercase text-slate-500">Phone</p>
               <div className="mt-2 space-y-2">
                 {OFFICE_PHONES.map((phone) => (
@@ -29,7 +29,7 @@ export default function ContactPage() {
                 ))}
               </div>
             </div>
-            <div className="card p-5">
+            <div className="card p-6">
               <p className="text-sm font-black uppercase text-slate-500">Email</p>
               <div className="mt-2 space-y-2">
                 {OFFICE_EMAILS.map((email) => (
@@ -41,8 +41,9 @@ export default function ContactPage() {
             </div>
           </div>
         </section>
-        <section className="card p-5">
-          <h2 className="text-xl font-black">Inquiry form</h2>
+        <section className="card p-6 shadow-soft">
+          <p className="eyebrow">Buyer inquiry</p>
+          <h2 className="mt-2 text-2xl font-black text-slate-950">Share your requirement</h2>
           <div className="mt-5">
             <InquiryForm />
           </div>

@@ -8,15 +8,37 @@ export default function ChatIcon({ className = "h-5 w-5" }) {
       xmlns="http://www.w3.org/2000/svg"
     >
       <path
-        d="M4.5 5.75A3.25 3.25 0 0 1 7.75 2.5h8.5a3.25 3.25 0 0 1 3.25 3.25v6.5a3.25 3.25 0 0 1-3.25 3.25H11l-4.4 3.3a.8.8 0 0 1-1.28-.64V15.4A3.25 3.25 0 0 1 2.5 12.2V5.75Z"
+        d="M4.25 6.75A3.75 3.75 0 0 1 8 3h8a3.75 3.75 0 0 1 3.75 3.75v5.7A3.75 3.75 0 0 1 16 16.2h-3.35l-4.5 3.35a.9.9 0 0 1-1.44-.72V16A3.76 3.76 0 0 1 4.25 12.45v-5.7Z"
         fill="currentColor"
-        opacity="0.18"
+        opacity="0.16"
       />
       <path
-        d="M7.75 6.8h8.5M7.75 10h6.8M7.75 13.2h4.6"
+        d="M4.25 6.75A3.75 3.75 0 0 1 8 3h8a3.75 3.75 0 0 1 3.75 3.75v5.7A3.75 3.75 0 0 1 16 16.2h-3.35l-4.5 3.35a.9.9 0 0 1-1.44-.72V16A3.76 3.76 0 0 1 4.25 12.45v-5.7Z"
         stroke="currentColor"
         strokeLinecap="round"
-        strokeWidth="1.8"
+        strokeLinejoin="round"
+        strokeWidth="1.7"
+      />
+      <path
+        d="m8.15 10.25 3.85-3.1 3.85 3.1"
+        stroke="currentColor"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeWidth="1.7"
+      />
+      <path
+        d="M9.15 10.05v3.05h5.7v-3.05"
+        stroke="currentColor"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeWidth="1.7"
+      />
+      <path d="M11.1 13.1v-1.85h1.8v1.85" fill="currentColor" opacity="0.28" />
+      <path
+        d="M8.6 6.9h.01M15.4 6.9h.01"
+        stroke="currentColor"
+        strokeLinecap="round"
+        strokeWidth="2.2"
       />
     </svg>
   );

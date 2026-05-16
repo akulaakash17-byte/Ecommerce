@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import ErrorMessage from "../../components/common/ErrorMessage";
+import SearchSelect from "../../components/forms/SearchSelect";
 import { OFFICE_PHONE, PROPERTY_TYPES } from "../../data/propertyTypes";
 import { useLocations } from "../../hooks/useLocations";
 import { propertyService } from "../../services/propertyService";
@@ -27,7 +28,9 @@ export default function PropertyFormPage() {
   const isEdit = Boolean(id);
   const [form, setForm] = useState(initialForm);
   const [existingImages, setExistingImages] = useState([]);
+  const [existingVideo, setExistingVideo] = useState("");
   const [files, setFiles] = useState([]);
+  const [videoFile, setVideoFile] = useState(null);
   const [loading, setLoading] = useState(isEdit);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
@@ -56,6 +59,7 @@ export default function PropertyFormPage() {
           status: property.status || "available",
         });
         setExistingImages(property.images || []);
+        setExistingVideo(property.video_url || "");
       })
       .catch((requestError) => {
         if (active) setError(requestError.message);
@@ -70,6 +74,14 @@ export default function PropertyFormPage() {
   }, [id, isEdit]);
 
   const fileNames = useMemo(() => files.map((file) => file.name).join(", "), [files]);
+
+  const addImageFiles = (selectedFiles) => {
+    setFiles((current) => {
+      const nextFiles = [...current, ...selectedFiles];
+      const uniqueFiles = new Map(nextFiles.map((file) => [`${file.name}-${file.lastModified}-${file.size}`, file]));
+      return Array.from(uniqueFiles.values());
+    });
+  };
 
   const update = (key, value) => {
     setForm((current) => ({
@@ -87,7 +99,9 @@ export default function PropertyFormPage() {
     const formData = new FormData();
     Object.entries(form).forEach(([key, value]) => formData.append(key, value));
     formData.append("existingImages", JSON.stringify(existingImages));
+    formData.append("existingVideo", existingVideo);
     files.forEach((file) => formData.append("images", file));
+    if (videoFile) formData.append("video", videoFile);
 
     try {
       if (isEdit) {
@@ -134,16 +148,18 @@ export default function PropertyFormPage() {
           </div>
           <div>
             <label className="label" htmlFor="property_type">Property type</label>
-            <select className="field" id="property_type" onChange={(event) => update("property_type", event.target.value)} value={form.property_type}>
-              {PROPERTY_TYPES.map((type) => <option key={type} value={type}>{type}</option>)}
-            </select>
+            <SearchSelect id="property_type" onChange={(value) => update("property_type", value)} options={PROPERTY_TYPES} value={form.property_type} />
           </div>
           <div>
             <label className="label" htmlFor="mandal">Mandal</label>
-            <select className="field" id="mandal" onChange={(event) => update("mandal", event.target.value)} required value={form.mandal}>
-              <option value="">{locationLoading.mandals ? "Loading..." : "Select mandal"}</option>
-              {mandals.map((mandal) => <option key={mandal} value={mandal}>{mandal}</option>)}
-            </select>
+            <SearchSelect
+              id="mandal"
+              isDisabled={locationLoading.mandals}
+              onChange={(value) => update("mandal", value)}
+              options={mandals}
+              placeholder={locationLoading.mandals ? "Loading..." : "Select mandal"}
+              value={form.mandal}
+            />
           </div>
           <div>
             <label className="label" htmlFor="village">Village</label>
@@ -166,10 +182,7 @@ export default function PropertyFormPage() {
           </div>
           <div>
             <label className="label" htmlFor="status">Status</label>
-            <select className="field" id="status" onChange={(event) => update("status", event.target.value)} value={form.status}>
-              <option value="available">Available</option>
-              <option value="sold">Sold</option>
-            </select>
+            <SearchSelect id="status" onChange={(value) => update("status", value)} options={["available", "sold"]} value={form.status} />
           </div>
         </div>
 
@@ -209,11 +222,55 @@ export default function PropertyFormPage() {
             accept="image/*"
             className="field"
             id="images"
+            name="images"
             multiple
-            onChange={(event) => setFiles(Array.from(event.target.files || []))}
+            onChange={(event) => addImageFiles(Array.from(event.target.files || []))}
             type="file"
           />
-          {fileNames ? <p className="mt-2 text-sm font-semibold text-slate-500">{fileNames}</p> : null}
+          {fileNames ? (
+            <div className="mt-3 rounded-md border border-slate-200 bg-slate-50 p-3">
+              <p className="text-sm font-black text-slate-700">{files.length} new photo{files.length === 1 ? "" : "s"} selected</p>
+              <div className="mt-2 flex flex-wrap gap-2">
+                {files.map((file) => (
+                  <button
+                    className="rounded bg-white px-2.5 py-1 text-xs font-bold text-slate-600 shadow-sm transition hover:text-red-700"
+                    key={`${file.name}-${file.lastModified}-${file.size}`}
+                    onClick={() => setFiles((current) => current.filter((item) => item !== file))}
+                    type="button"
+                  >
+                    {file.name} x
+                  </button>
+                ))}
+              </div>
+            </div>
+          ) : null}
+        </div>
+
+        <div>
+          <label className="label" htmlFor="video">Upload video</label>
+          {existingVideo ? (
+            <div className="mb-3 overflow-hidden rounded-lg border border-slate-200 bg-slate-950">
+              <video className="max-h-72 w-full" controls src={existingVideo} />
+              <div className="bg-white p-3">
+                <button
+                  className="btn-secondary px-3 py-2 text-red-700 hover:border-red-300 hover:text-red-800"
+                  onClick={() => setExistingVideo("")}
+                  type="button"
+                >
+                  Remove existing video
+                </button>
+              </div>
+            </div>
+          ) : null}
+          <input
+            accept="video/mp4,video/webm,video/quicktime"
+            className="field"
+            id="video"
+            name="video"
+            onChange={(event) => setVideoFile(event.target.files?.[0] || null)}
+            type="file"
+          />
+          {videoFile ? <p className="mt-2 text-sm font-semibold text-slate-500">{videoFile.name}</p> : null}
         </div>
 
         <div className="flex flex-wrap gap-3 border-t border-slate-100 pt-5">

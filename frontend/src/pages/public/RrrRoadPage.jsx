@@ -160,7 +160,7 @@ const sourceLinks = [
 
 export default function RrrRoadPage() {
   useDocumentMeta({
-    title: "RRR Road Siddipet Map, News and Villages | Siddipet Realty",
+    title: "RRR Road Siddipet Map, News and Villages | Siddipet Real Estate",
     description: "Explore Hyderabad Regional Ring Road news, Siddipet mandals, villages, and buyer verification checks for Gajwel, Pragnapur, Jagdevpur, Markook, Rayapol, and Wargal.",
     canonicalPath: "/rrr-road",
   });

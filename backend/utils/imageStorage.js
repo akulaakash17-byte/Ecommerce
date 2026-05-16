@@ -26,3 +26,22 @@ export async function storeUploadedImages(files = []) {
 
   return uploads;
 }
+
+export async function storeUploadedVideo(files = []) {
+  const [file] = files;
+  if (!file) {
+    return "";
+  }
+
+  if (!isCloudinaryConfigured) {
+    return `/uploads/${file.filename}`;
+  }
+
+  const result = await cloudinary.uploader.upload(file.path, {
+    folder: env.cloudinary.folder,
+    resource_type: "video",
+  });
+
+  await fs.unlink(file.path).catch(() => {});
+  return result.secure_url;
+}

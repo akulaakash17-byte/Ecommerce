@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import EmptyState from "../../components/common/EmptyState";
 import ErrorMessage from "../../components/common/ErrorMessage";
 import Pagination from "../../components/common/Pagination";
+import SearchSelect from "../../components/forms/SearchSelect";
 import { PROPERTY_TYPES } from "../../data/propertyTypes";
 import { propertyService } from "../../services/propertyService";
 import { formatPrice } from "../../utils/formatters";
@@ -55,6 +56,7 @@ export default function AdminProperties() {
       is_verified: property.is_verified,
       status: property.status === "sold" ? "available" : "sold",
       existingImages: JSON.stringify(property.images || []),
+      existingVideo: property.video_url || "",
     }).forEach(([key, value]) => formData.append(key, value));
 
     try {
@@ -83,15 +85,20 @@ export default function AdminProperties() {
           placeholder="Search properties"
           value={filters.q}
         />
-        <select className="field" onChange={(event) => setFilters((current) => ({ ...current, status: event.target.value, page: 1 }))} value={filters.status}>
-          <option value="">All status</option>
-          <option value="available">Available</option>
-          <option value="sold">Sold</option>
-        </select>
-        <select className="field" onChange={(event) => setFilters((current) => ({ ...current, property_type: event.target.value, page: 1 }))} value={filters.property_type}>
-          <option value="">All types</option>
-          {PROPERTY_TYPES.map((type) => <option key={type} value={type}>{type}</option>)}
-        </select>
+        <SearchSelect
+          isClearable
+          onChange={(value) => setFilters((current) => ({ ...current, status: value, page: 1 }))}
+          options={["available", "sold"]}
+          placeholder="All status"
+          value={filters.status}
+        />
+        <SearchSelect
+          isClearable
+          onChange={(value) => setFilters((current) => ({ ...current, property_type: value, page: 1 }))}
+          options={PROPERTY_TYPES}
+          placeholder="All types"
+          value={filters.property_type}
+        />
       </div>
 
       <div className="card overflow-hidden">

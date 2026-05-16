@@ -27,6 +27,7 @@ ALTER TABLE properties ADD COLUMN IF NOT EXISTS village VARCHAR(120);
 ALTER TABLE properties ADD COLUMN IF NOT EXISTS property_type VARCHAR(60);
 ALTER TABLE properties ADD COLUMN IF NOT EXISTS land_area VARCHAR(100);
 ALTER TABLE properties ADD COLUMN IF NOT EXISTS images JSONB NOT NULL DEFAULT '[]'::jsonb;
+ALTER TABLE properties ADD COLUMN IF NOT EXISTS video_url TEXT;
 ALTER TABLE properties ADD COLUMN IF NOT EXISTS owner_name VARCHAR(140);
 ALTER TABLE properties ADD COLUMN IF NOT EXISTS phone VARCHAR(30);
 ALTER TABLE properties ADD COLUMN IF NOT EXISTS is_verified BOOLEAN NOT NULL DEFAULT FALSE;
@@ -57,6 +58,7 @@ ALTER TABLE inquiries ADD COLUMN IF NOT EXISTS created_at TIMESTAMPTZ NOT NULL D
 
 CREATE INDEX IF NOT EXISTS idx_inquiries_property_id ON inquiries(property_id);
 CREATE INDEX IF NOT EXISTS idx_inquiries_status ON inquiries(status);
+CREATE INDEX IF NOT EXISTS idx_inquiries_created_at ON inquiries(created_at);
 
 CREATE TABLE IF NOT EXISTS agent_followups (
   id SERIAL PRIMARY KEY

@@ -101,9 +101,19 @@ Additional public contact details:
 - Phone: `8897422872`
 - Email: `akulaakash17@gmail.com`
 
+## AI Chatbot
+
+The public chatbot can use Groq through the backend API. Keep Groq credentials only in `backend/.env`; do not put them in frontend code.
+
+- `GROQ_CHATBOT_ENABLED=true`
+- `GROQ_API_KEY`
+- `GROQ_MODEL=llama-3.1-8b-instant`
+
+The backend calls Groq's OpenAI-compatible chat completions endpoint and the frontend falls back to local FAQ matching if the AI service is unavailable.
+
 ## Inquiry Notifications
 
-Inquiry submission can automatically notify `+91 8897422872` and `+91 9347332792`.
+Inquiry submission can automatically notify the office through WhatsApp, Telegram, and email.
 
 For WhatsApp Cloud API, set these in `backend/.env`:
 
@@ -113,25 +123,11 @@ For WhatsApp Cloud API, set these in `backend/.env`:
 - `WHATSAPP_PHONE_NUMBER_ID`
 - `WHATSAPP_ACCESS_TOKEN`
 
-For an SMS gateway, set `SMS_NOTIFICATION_WEBHOOK_URL`. The backend sends:
+For Telegram Bot API notifications, create a bot through BotFather, start the bot from the destination account, then set:
 
-```json
-{
-  "to": "918897422872",
-  "message": "New property inquiry..."
-}
-```
-
-For multiple SMS webhook recipients, the backend posts once per phone in `INQUIRY_NOTIFICATION_PHONES`.
-
-For Twilio SMS, set these in `backend/.env`:
-
-- `TWILIO_SMS_NOTIFICATION_ENABLED=true`
-- `TWILIO_ACCOUNT_SID`
-- `TWILIO_AUTH_TOKEN`
-- `TWILIO_SMS_FROM_NUMBER`
-
-Twilio trial accounts can only send SMS to verified recipient phone numbers.
+- `TELEGRAM_NOTIFICATION_ENABLED=true`
+- `TELEGRAM_BOT_TOKEN`
+- `TELEGRAM_CHAT_ID`
 
 For email notifications, set these in `backend/.env`:
 
@@ -220,7 +216,7 @@ Translation
 Google Translate widget is okay for quick use, but for production it can be inconsistent and depends on Google script loading. Better production option: use app-controlled translations with i18next for Telugu/Hindi labels, buttons, forms, and main content.
 
 Inquiry Notification
-Code is ready, but real production needs configured WhatsApp Cloud API or SMS provider credentials. Also add notification logs/status so admin can see if a message failed.
+Code is ready, but real production needs configured WhatsApp Cloud API or Telegram bot credentials. Notification logs and inquiry status tracking are available in the admin dashboard.
 
 Security
 Add stronger production checks:
@@ -238,9 +234,10 @@ Production security settings now supported in `backend/.env`:
 - `CLIENT_URLS=https://yourdomain.com,https://www.yourdomain.com`
 - `MAX_JSON_BODY_SIZE=100kb`
 - `UPLOAD_MAX_FILE_SIZE_MB=5`
+- `UPLOAD_MAX_VIDEO_FILE_SIZE_MB=50`
 - `UPLOAD_MAX_FILES=10`
 
-The API will reject unknown CORS origins, disable `x-powered-by`, apply stricter login rate limits, use HTTP-only session cookies, and allow only JPG, PNG, and WebP property uploads.
+The API will reject unknown CORS origins, disable `x-powered-by`, apply stricter login rate limits, use HTTP-only session cookies, and allow only JPG, PNG, WebP property image uploads plus MP4, WebM, and MOV property video uploads.
 Database
 Schema now includes migrations, foreign-key constraints for new data, inquiry status fields, and notification logs. Production should still add:
 

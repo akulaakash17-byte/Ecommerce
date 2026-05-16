@@ -38,6 +38,7 @@ export const env = {
   maxJsonBodySize: process.env.MAX_JSON_BODY_SIZE || "100kb",
   upload: {
     maxFileSizeMb: Number(process.env.UPLOAD_MAX_FILE_SIZE_MB || 5),
+    maxVideoFileSizeMb: Number(process.env.UPLOAD_MAX_VIDEO_FILE_SIZE_MB || 50),
     maxFiles: Number(process.env.UPLOAD_MAX_FILES || 10),
   },
   db: {
@@ -59,6 +60,11 @@ export const env = {
     apiSecret: process.env.CLOUDINARY_API_SECRET || "",
     folder: process.env.CLOUDINARY_FOLDER || "siddipet-real-estate",
   },
+  groq: {
+    enabled: process.env.GROQ_CHATBOT_ENABLED === "true",
+    apiKey: process.env.GROQ_API_KEY || "",
+    model: process.env.GROQ_MODEL || "llama-3.1-8b-instant",
+  },
   notifications: {
     inquiryPhones: (process.env.INQUIRY_NOTIFICATION_PHONES || process.env.INQUIRY_NOTIFICATION_PHONE || "918897422872")
       .split(",")
@@ -70,15 +76,10 @@ export const env = {
       phoneNumberId: process.env.WHATSAPP_PHONE_NUMBER_ID || "",
       accessToken: process.env.WHATSAPP_ACCESS_TOKEN || "",
     },
-    sms: {
-      webhookUrl: process.env.SMS_NOTIFICATION_WEBHOOK_URL || "",
-      apiKey: process.env.SMS_NOTIFICATION_API_KEY || "",
-    },
-    twilioSms: {
-      enabled: process.env.TWILIO_SMS_NOTIFICATION_ENABLED === "true",
-      accountSid: process.env.TWILIO_ACCOUNT_SID || "",
-      authToken: process.env.TWILIO_AUTH_TOKEN || "",
-      fromNumber: process.env.TWILIO_SMS_FROM_NUMBER || process.env.TWILIO_FROM_NUMBER || "",
+    telegram: {
+      enabled: process.env.TELEGRAM_NOTIFICATION_ENABLED === "true",
+      botToken: process.env.TELEGRAM_BOT_TOKEN || "",
+      chatIds: splitCsv(process.env.TELEGRAM_CHAT_IDS || process.env.TELEGRAM_CHAT_ID),
     },
     email: {
       enabled: process.env.EMAIL_NOTIFICATION_ENABLED === "true",

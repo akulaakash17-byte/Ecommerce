@@ -38,6 +38,11 @@ export default function LanguageTranslator() {
   const activeCodes = useMemo(() => new Set(languages.map((language) => language.code)), []);
 
   useEffect(() => {
+    document.documentElement.lang = activeCodes.has(activeLanguage) ? activeLanguage : "en";
+    document.documentElement.dir = "ltr";
+  }, [activeCodes, activeLanguage]);
+
+  useEffect(() => {
     window.googleTranslateElementInit = () => {
       if (!window.google?.translate?.TranslateElement) return;
 

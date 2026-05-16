@@ -1,5 +1,6 @@
 import { PROPERTY_TYPES } from "../../data/propertyTypes";
 import { useLocations } from "../../hooks/useLocations";
+import SearchSelect from "../forms/SearchSelect";
 
 export default function PropertyFilters({ filters, onChange, onSubmit, onReset }) {
   const { mandals, villages, loading } = useLocations(filters.mandal);
@@ -13,11 +14,11 @@ export default function PropertyFilters({ filters, onChange, onSubmit, onReset }
   };
 
   return (
-    <form className="card grid gap-4 p-4 md:grid-cols-2 lg:grid-cols-6" onSubmit={onSubmit}>
+    <form className="card grid gap-4 p-5 md:grid-cols-2 lg:grid-cols-6" onSubmit={onSubmit}>
       <div className="lg:col-span-2">
         <label className="label" htmlFor="q">Search</label>
         <input
-          className="field"
+          className="field py-3"
           id="q"
           onChange={(event) => update("q", event.target.value)}
           placeholder="Plot, house, village..."
@@ -26,17 +27,19 @@ export default function PropertyFilters({ filters, onChange, onSubmit, onReset }
       </div>
       <div>
         <label className="label" htmlFor="mandal">Mandal</label>
-        <select className="field" id="mandal" onChange={(event) => update("mandal", event.target.value)} value={filters.mandal}>
-          <option value="">All mandals</option>
-          {mandals.map((mandal) => (
-            <option key={mandal} value={mandal}>{mandal}</option>
-          ))}
-        </select>
+        <SearchSelect
+          id="mandal"
+          isClearable
+          onChange={(value) => update("mandal", value)}
+          options={mandals}
+          placeholder="All mandals"
+          value={filters.mandal}
+        />
       </div>
       <div>
         <label className="label" htmlFor="village">Village</label>
         <select
-          className="field"
+          className="field py-3"
           disabled={!filters.mandal || loading.villages}
           id="village"
           onChange={(event) => update("village", event.target.value)}
@@ -50,31 +53,28 @@ export default function PropertyFilters({ filters, onChange, onSubmit, onReset }
       </div>
       <div>
         <label className="label" htmlFor="property_type">Type</label>
-        <select
-          className="field"
+        <SearchSelect
           id="property_type"
-          onChange={(event) => update("property_type", event.target.value)}
+          isClearable
+          onChange={(value) => update("property_type", value)}
+          options={PROPERTY_TYPES}
+          placeholder="All types"
           value={filters.property_type}
-        >
-          <option value="">All types</option>
-          {PROPERTY_TYPES.map((type) => (
-            <option key={type} value={type}>{type}</option>
-          ))}
-        </select>
+        />
       </div>
       <div className="grid grid-cols-2 gap-2 lg:col-span-1">
         <div>
           <label className="label" htmlFor="minPrice">Min</label>
-          <input className="field" id="minPrice" min="0" onChange={(event) => update("minPrice", event.target.value)} placeholder="₹" type="number" value={filters.minPrice} />
+          <input className="field py-3" id="minPrice" min="0" onChange={(event) => update("minPrice", event.target.value)} placeholder="₹" type="number" value={filters.minPrice} />
         </div>
         <div>
           <label className="label" htmlFor="maxPrice">Max</label>
-          <input className="field" id="maxPrice" min="0" onChange={(event) => update("maxPrice", event.target.value)} placeholder="₹" type="number" value={filters.maxPrice} />
+          <input className="field py-3" id="maxPrice" min="0" onChange={(event) => update("maxPrice", event.target.value)} placeholder="₹" type="number" value={filters.maxPrice} />
         </div>
       </div>
-      <div className="flex items-end gap-2 md:col-span-2 lg:col-span-6">
-        <button className="btn-primary" type="submit">Apply filters</button>
-        <button className="btn-secondary" onClick={onReset} type="button">Reset</button>
+      <div className="flex flex-wrap items-end gap-2 md:col-span-2 lg:col-span-6">
+        <button className="btn-primary px-5 py-3" type="submit">Apply filters</button>
+        <button className="btn-secondary px-5 py-3" onClick={onReset} type="button">Reset</button>
       </div>
     </form>
   );

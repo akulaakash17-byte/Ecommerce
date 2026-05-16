@@ -10,6 +10,7 @@ ALTER TABLE inquiries ADD COLUMN IF NOT EXISTS updated_at TIMESTAMPTZ NOT NULL D
 ALTER TABLE inquiries ALTER COLUMN status SET DEFAULT 'new';
 
 CREATE INDEX IF NOT EXISTS idx_inquiries_status ON inquiries(status);
+CREATE INDEX IF NOT EXISTS idx_inquiries_created_at ON inquiries(created_at);
 
 CREATE TABLE IF NOT EXISTS notification_logs (
   id SERIAL PRIMARY KEY,

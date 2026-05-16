@@ -1,5 +1,4 @@
 import nodemailer from "nodemailer";
-import twilio from "twilio";
 
 import { env } from "../config/env.js";
 import { NotificationLogModel } from "../models/notificationLogModel.js";
@@ -8,11 +7,6 @@ const REQUEST_TIMEOUT_MS = 8000;
 
 function normalizePhone(phone) {
   return String(phone || "").replace(/\D/g, "");
-}
-
-function normalizeE164Phone(phone) {
-  const normalized = normalizePhone(phone);
-  return normalized ? `+${normalized}` : "";
 }
 
 function truncate(text, maxLength) {
@@ -89,7 +83,7 @@ async function postJson(url, body, headers = {}) {
     try {
       data = responseText ? JSON.parse(responseText) : null;
     } catch {
-      // Some SMS providers return plain text responses.
+      // Some notification providers return plain text responses.
     }
 
     if (!response.ok) {
@@ -134,58 +128,24 @@ async function sendWhatsAppNotification(message) {
   );
 }
 
-async function sendSmsWebhookNotification(message) {
-  const { sms, inquiryPhones } = env.notifications;
-  const recipientPhones = inquiryPhones.map(normalizePhone).filter(Boolean);
+async function sendTelegramNotification(message) {
+  const { telegram } = env.notifications;
 
-  if (!sms.webhookUrl || recipientPhones.length === 0) {
+  if (!telegram.enabled || !telegram.botToken || telegram.chatIds.length === 0) {
     return null;
   }
 
-  const headers = sms.apiKey ? { Authorization: `Bearer ${sms.apiKey}` } : {};
+  const url = `https://api.telegram.org/bot${telegram.botToken}/sendMessage`;
 
   return Promise.all(
-    recipientPhones.map((recipientPhone) =>
-      postJson(
-        sms.webhookUrl,
-        {
-          to: recipientPhone,
-          message,
-        },
-        headers
-      )
-    )
-  );
-}
-
-async function sendTwilioSmsNotification(message) {
-  const { twilioSms, inquiryPhones } = env.notifications;
-  const recipients = inquiryPhones.map(normalizeE164Phone).filter(Boolean);
-  const from = normalizeE164Phone(twilioSms.fromNumber);
-
-  if (!twilioSms.enabled || !twilioSms.accountSid || !twilioSms.authToken || !from || recipients.length === 0) {
-    return null;
-  }
-
-  const client = twilio(twilioSms.accountSid, twilioSms.authToken);
-
-  const results = await Promise.allSettled(
-    recipients.map((to) =>
-      client.messages.create({
-        body: message,
-        from,
-        to,
+    telegram.chatIds.map((chatId) =>
+      postJson(url, {
+        chat_id: chatId,
+        text: message,
+        disable_web_page_preview: true,
       })
     )
   );
-
-  results.forEach((result, index) => {
-    if (result.status === "rejected") {
-      console.error(`Twilio SMS notification failed for ${recipients[index]}:`, result.reason.message);
-    }
-  });
-
-  return results;
 }
 
 async function sendEmailNotification(inquiry, message) {
@@ -246,7 +206,7 @@ async function recordNotification({ inquiryId, channel, recipient = "", result }
 
 export async function notifyInquiryCreated(inquiry) {
   const message = buildInquiryMessage(inquiry);
-  const { inquiryPhones, email } = env.notifications;
+  const { inquiryPhones, telegram, email } = env.notifications;
   const tasks = [
     {
       channel: "whatsapp",
@@ -254,14 +214,9 @@ export async function notifyInquiryCreated(inquiry) {
       promise: sendWhatsAppNotification(message),
     },
     {
-      channel: "sms_webhook",
-      recipient: inquiryPhones.join(","),
-      promise: sendSmsWebhookNotification(message),
-    },
-    {
-      channel: "twilio_sms",
-      recipient: inquiryPhones.join(","),
-      promise: sendTwilioSmsNotification(message),
+      channel: "telegram",
+      recipient: telegram.chatIds.join(","),
+      promise: sendTelegramNotification(message),
     },
     {
       channel: "email",

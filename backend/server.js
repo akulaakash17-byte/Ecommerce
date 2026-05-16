@@ -7,6 +7,7 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { env } from "./config/env.js";
 import authRoutes from "./routes/authRoutes.js";
+import chatbotRoutes from "./routes/chatbotRoutes.js";
 import dashboardRoutes from "./routes/dashboardRoutes.js";
 import followUpRoutes from "./routes/followUpRoutes.js";
 import inquiryRoutes from "./routes/inquiryRoutes.js";
@@ -64,9 +65,20 @@ app.use(
     message: { message: "Too many login attempts. Please try again later." },
   })
 );
+app.use(
+  "/api/chatbot",
+  rateLimit({
+    windowMs: 60 * 1000,
+    limit: 30,
+    standardHeaders: true,
+    legacyHeaders: false,
+    message: { message: "Too many chatbot messages. Please wait a moment." },
+  })
+);
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
 app.use("/api/auth", authRoutes);
+app.use("/api/chatbot", chatbotRoutes);
 app.use("/api/dashboard", dashboardRoutes);
 app.use("/api/follow-ups", followUpRoutes);
 app.use("/api/inquiries", inquiryRoutes);

@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState } from "react";
 import EmptyState from "../../components/common/EmptyState";
 import ErrorMessage from "../../components/common/ErrorMessage";
 import Pagination from "../../components/common/Pagination";
+import SearchSelect from "../../components/forms/SearchSelect";
 import { useAuth } from "../../context/AuthContext";
 import { inquiryService } from "../../services/inquiryService";
 import { notificationService } from "../../services/notificationService";
@@ -99,62 +100,86 @@ export default function AdminInquiries() {
           placeholder="Search by name, phone, or property"
           value={filters.q}
         />
-        <select
-          className="field"
-          onChange={(event) => setFilters((current) => ({ ...current, status: event.target.value, page: 1 }))}
+        <SearchSelect
+          isClearable
+          onChange={(value) => setFilters((current) => ({ ...current, status: value, page: 1 }))}
+          options={inquiryStatuses}
+          placeholder="All statuses"
           value={filters.status}
-        >
-          <option value="">All statuses</option>
-          {inquiryStatuses.map((status) => (
-            <option key={status} value={status}>{status}</option>
-          ))}
-        </select>
+        />
       </div>
 
-      <div className="card divide-y divide-slate-100 overflow-hidden">
+      <div className="card overflow-hidden">
         {loading ? (
           <div className="p-5 text-sm font-bold text-slate-500">Loading inquiries...</div>
-        ) : result.data.map((inquiry) => (
-          <div className="grid gap-4 p-5 xl:grid-cols-[0.9fr_1fr_1.3fr_1fr]" key={inquiry.id}>
-            <div>
-              <div className="flex flex-wrap items-center gap-2">
-                <p className="font-black">{inquiry.name}</p>
-                <StatusBadge status={inquiry.status} />
-              </div>
-              <p className="mt-1 text-sm font-semibold text-slate-500">{inquiry.phone}</p>
-              <p className="mt-1 text-sm text-slate-500">{formatDate(inquiry.created_at)}</p>
-            </div>
-            <p className="text-sm font-bold text-slate-700">{inquiry.property_title || "General inquiry"}</p>
-            <div>
-              <p className="text-sm leading-6 text-slate-600">{inquiry.message}</p>
-              {inquiry.status_note ? (
-                <p className="mt-3 rounded-md bg-slate-50 p-3 text-sm font-semibold text-slate-600">
-                  Note: {inquiry.status_note}
-                </p>
-              ) : null}
-            </div>
-            <div className="grid gap-2">
-              <textarea
-                className="field min-h-20"
-                onChange={(event) => setStatusNotes((current) => ({ ...current, [inquiry.id]: event.target.value }))}
-                placeholder="Status note"
-                value={statusNotes[inquiry.id] ?? inquiry.status_note ?? ""}
-              />
-              <div className="flex flex-wrap gap-2">
-                {inquiryStatuses.map((status) => (
-                  <button
-                    className={status === inquiry.status ? "btn-primary px-3 py-2" : "btn-secondary px-3 py-2"}
-                    key={status}
-                    onClick={() => updateStatus(inquiry, status)}
-                    type="button"
-                  >
-                    {status}
-                  </button>
+        ) : (
+          <div className="overflow-x-auto">
+            <table className="w-full min-w-[980px] table-fixed text-left">
+              <thead className="bg-slate-50 text-xs font-black uppercase text-slate-500">
+                <tr>
+                  <th className="w-[210px] px-5 py-3">Lead</th>
+                  <th className="w-[190px] px-5 py-3">Property</th>
+                  <th className="px-5 py-3">Message</th>
+                  <th className="w-[190px] px-5 py-3">Tracking</th>
+                  <th className="w-[280px] px-5 py-3">Action</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-slate-100">
+                {result.data.map((inquiry) => (
+                  <tr className="align-top" key={inquiry.id}>
+                    <td className="px-5 py-4">
+                      <div className="flex flex-wrap items-center gap-2">
+                        <p className="font-black text-slate-950">{inquiry.name}</p>
+                        <StatusBadge status={inquiry.status} />
+                      </div>
+                      <p className="mt-1 text-sm font-semibold text-slate-500">{inquiry.phone}</p>
+                      <p className="mt-1 text-xs font-bold text-slate-400">Inquiry #{inquiry.id}</p>
+                    </td>
+                    <td className="px-5 py-4 text-sm font-bold text-slate-700">
+                      {inquiry.property_title || "General inquiry"}
+                    </td>
+                    <td className="px-5 py-4">
+                      <p className="line-clamp-4 text-sm leading-6 text-slate-600">{inquiry.message}</p>
+                      {inquiry.status_note ? (
+                        <p className="mt-3 rounded-md bg-slate-50 p-3 text-sm font-semibold text-slate-600">
+                          Note: {inquiry.status_note}
+                        </p>
+                      ) : null}
+                    </td>
+                    <td className="px-5 py-4">
+                      <p className="text-sm font-bold text-slate-700">{formatDate(inquiry.created_at)}</p>
+                      <p className="mt-1 text-xs font-semibold text-slate-400">
+                        Updated {formatDate(inquiry.updated_at)}
+                      </p>
+                    </td>
+                    <td className="px-5 py-4">
+                      <div className="grid gap-2">
+                        <textarea
+                          className="field min-h-20"
+                          onChange={(event) => setStatusNotes((current) => ({ ...current, [inquiry.id]: event.target.value }))}
+                          placeholder="Status note"
+                          value={statusNotes[inquiry.id] ?? inquiry.status_note ?? ""}
+                        />
+                        <div className="flex flex-wrap gap-2">
+                          {inquiryStatuses.map((status) => (
+                            <button
+                              className={status === inquiry.status ? "btn-primary px-3 py-2" : "btn-secondary px-3 py-2"}
+                              key={status}
+                              onClick={() => updateStatus(inquiry, status)}
+                              type="button"
+                            >
+                              {status}
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+                    </td>
+                  </tr>
                 ))}
-              </div>
-            </div>
+              </tbody>
+            </table>
           </div>
-        ))}
+        )}
       </div>
       {!loading && !result.data.length ? <div className="mt-5"><EmptyState title="No inquiries yet" message="Public inquiries will appear here." /></div> : null}
       <Pagination meta={result.meta} onPageChange={(page) => setFilters((current) => ({ ...current, page }))} />

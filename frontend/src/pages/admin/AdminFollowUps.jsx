@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState } from "react";
 import EmptyState from "../../components/common/EmptyState";
 import ErrorMessage from "../../components/common/ErrorMessage";
 import Pagination from "../../components/common/Pagination";
+import SearchSelect from "../../components/forms/SearchSelect";
 import { useAuth } from "../../context/AuthContext";
 import { followUpService } from "../../services/followUpService";
 import { formatDate } from "../../utils/formatters";
@@ -149,12 +150,13 @@ export default function AdminFollowUps() {
           placeholder="Search follow-ups"
           value={filters.q}
         />
-        <select className="field" onChange={(event) => setFilters((current) => ({ ...current, status: event.target.value, page: 1 }))} value={filters.status}>
-          <option value="">All status</option>
-          <option value="pending">Pending</option>
-          <option value="accepted">Accepted</option>
-          <option value="rejected">Rejected</option>
-        </select>
+        <SearchSelect
+          isClearable
+          onChange={(value) => setFilters((current) => ({ ...current, status: value, page: 1 }))}
+          options={["pending", "accepted", "rejected"]}
+          placeholder="All status"
+          value={filters.status}
+        />
       </div>
 
       <div className="card divide-y divide-slate-100 overflow-hidden">
@@ -178,10 +180,10 @@ export default function AdminFollowUps() {
                     className="block font-bold text-brand-700"
                     href={createMailtoUrl({
                       email: followUp.email,
-                      subject: "Follow-up from Siddipet Realty",
+                      subject: "Follow-up from Siddipet Real Estate",
                       body: `Hi ${followUp.customer_name},
 
-This is regarding your property inquiry with Siddipet Realty.
+This is regarding your property inquiry with Siddipet Real Estate.
 
 Follow-up note:
 ${followUp.message}

@@ -20,7 +20,7 @@ const emptyFilters = {
 
 export default function ListingsPage() {
   useDocumentMeta({
-    title: "Property Listings | Siddipet Realty",
+    title: "Property Listings | Siddipet Real Estate",
     description: "Search Siddipet district properties by mandal, village, type, and price. Contact the office for site visits and offline deal support.",
     canonicalPath: "/properties",
   });
@@ -91,33 +91,45 @@ export default function ListingsPage() {
   };
 
   return (
-    <main className="container-page py-10">
-      <div className="mb-7">
-        <p className="eyebrow">Listings</p>
-        <h1 className="section-title mt-2">Properties in Siddipet district</h1>
-        <p className="mt-3 max-w-2xl text-sm leading-6 text-slate-600">
-          Filter by mandal, village, property type, and price. Contact happens offline through call, WhatsApp, or inquiry form.
-        </p>
-      </div>
-
-      <PropertyFilters filters={filters} onChange={setFilters} onReset={resetFilters} onSubmit={applyFilters} />
-      <div className="mt-6">
-        <ErrorMessage message={error} />
-      </div>
-
-      <div className="mt-7 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-        {loading
-          ? Array.from({ length: 9 }).map((_, index) => <PropertyCardSkeleton key={index} />)
-          : result.data.map((property) => <PropertyCard key={property.id} property={property} />)}
-      </div>
-
-      {!loading && !result.data.length ? (
-        <div className="mt-7">
-          <EmptyState title="No matching properties" message="Try changing the mandal, village, type, or price filters." />
+    <main>
+      <div className="border-b border-slate-200/80 bg-white/70">
+        <div className="container-page py-10">
+          <div className="flex flex-col justify-between gap-4 md:flex-row md:items-end">
+            <div>
+              <p className="eyebrow">Listings</p>
+              <h1 className="section-title mt-2">Properties in Siddipet district</h1>
+              <p className="mt-3 max-w-2xl text-sm leading-6 text-slate-600">
+                Filter by mandal, village, property type, and price. Contact happens offline through call, WhatsApp, or inquiry form.
+              </p>
+            </div>
+            <div className="rounded-lg border border-slate-200 bg-white px-4 py-3 shadow-sm">
+              <p className="text-xs font-black uppercase text-slate-500">Available results</p>
+              <p className="mt-1 text-2xl font-black text-slate-950">{result.meta?.total ?? 0}</p>
+            </div>
+          </div>
         </div>
-      ) : null}
+      </div>
 
-      <Pagination meta={result.meta} onPageChange={changePage} />
+      <div className="container-page py-8">
+        <PropertyFilters filters={filters} onChange={setFilters} onReset={resetFilters} onSubmit={applyFilters} />
+        <div className="mt-6">
+          <ErrorMessage message={error} />
+        </div>
+
+        <div className="mt-7 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+          {loading
+            ? Array.from({ length: 9 }).map((_, index) => <PropertyCardSkeleton key={index} />)
+            : result.data.map((property) => <PropertyCard key={property.id} property={property} />)}
+        </div>
+
+        {!loading && !result.data.length ? (
+          <div className="mt-7">
+            <EmptyState title="No matching properties" message="Try changing the mandal, village, type, or price filters." />
+          </div>
+        ) : null}
+
+        <Pagination meta={result.meta} onPageChange={changePage} />
+      </div>
     </main>
   );
 }

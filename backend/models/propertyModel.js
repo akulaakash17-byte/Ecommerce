@@ -2,7 +2,7 @@ import { query } from "../config/db.js";
 
 const propertyColumns = `
   id, slug, title, description, price, district, mandal, village, property_type,
-  land_area, images, owner_name, phone, is_verified, status, created_by, created_at, updated_at
+  land_area, images, video_url, owner_name, phone, is_verified, status, created_by, created_at, updated_at
 `;
 
 function buildFilters(filters = {}) {
@@ -89,9 +89,9 @@ export const PropertyModel = {
     const result = await query(
       `INSERT INTO properties (
         slug, title, description, price, district, mandal, village, property_type,
-        land_area, images, owner_name, phone, is_verified, status, created_by
+        land_area, images, video_url, owner_name, phone, is_verified, status, created_by
       )
-      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10::jsonb, $11, $12, $13, $14, $15)
+      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10::jsonb, $11, $12, $13, $14, $15, $16)
       RETURNING ${propertyColumns}`,
       [
         property.slug,
@@ -104,6 +104,7 @@ export const PropertyModel = {
         property.property_type,
         property.land_area || "",
         JSON.stringify(property.images || []),
+        property.video_url || "",
         property.owner_name || "",
         property.phone,
         property.is_verified || false,

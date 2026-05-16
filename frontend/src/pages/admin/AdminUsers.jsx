@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from "react";
 import EmptyState from "../../components/common/EmptyState";
 import ErrorMessage from "../../components/common/ErrorMessage";
+import SearchSelect from "../../components/forms/SearchSelect";
 import { authService } from "../../services/authService";
 import { formatDate } from "../../utils/formatters";
 
@@ -92,10 +93,7 @@ export default function AdminUsers() {
         </div>
         <div>
           <label className="label" htmlFor="role">Role</label>
-          <select className="field" id="role" onChange={(event) => update("role", event.target.value)} value={form.role}>
-            <option value="agent">Agent</option>
-            <option value="admin">Admin</option>
-          </select>
+          <SearchSelect id="role" onChange={(value) => update("role", value)} options={["agent", "admin"]} value={form.role} />
         </div>
         <div className="md:col-span-2 xl:col-span-5">
           <button className="btn-primary" disabled={saving} type="submit">
