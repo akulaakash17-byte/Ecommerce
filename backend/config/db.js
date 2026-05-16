@@ -3,7 +3,7 @@ import { env } from "./env.js";
 
 const { Pool } = pg;
 
-export const pool = new Pool({
+const poolConfig = {
   host: env.db.host,
   port: env.db.port,
   database: env.db.database,
@@ -11,7 +11,17 @@ export const pool = new Pool({
   password: env.db.password,
   max: 10,
   idleTimeoutMillis: 30000,
-});
+};
+
+if (env.db.connectionString) {
+  poolConfig.connectionString = env.db.connectionString;
+}
+
+if (env.db.ssl) {
+  poolConfig.ssl = { rejectUnauthorized: false };
+}
+
+export const pool = new Pool(poolConfig);
 
 export const query = (text, params) => pool.query(text, params);
 

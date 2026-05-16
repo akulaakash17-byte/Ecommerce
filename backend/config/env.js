@@ -42,11 +42,13 @@ export const env = {
     maxFiles: Number(process.env.UPLOAD_MAX_FILES || 10),
   },
   db: {
+    connectionString: process.env.DATABASE_URL || "",
     host: process.env.DB_HOST || "127.0.0.1",
     port: Number(process.env.DB_PORT || 5432),
     database: process.env.DB_NAME || "postgres",
     user: process.env.DB_USER || "postgres",
     password: process.env.DB_PASSWORD || "",
+    ssl: process.env.DB_SSL === "true" || Boolean(process.env.DATABASE_URL?.includes("sslmode=require")),
   },
   admin: {
     name: process.env.ADMIN_NAME || "Srinivas",
