@@ -100,4 +100,17 @@ export const FollowUpModel = {
 
     return result.rows[0] || null;
   },
+
+  async countPending(user) {
+    const values = ["pending"];
+    const clauses = [`status = $1`];
+
+    if (user.role !== "admin") {
+      values.push(user.id);
+      clauses.push(`agent_id = $${values.length}`);
+    }
+
+    const result = await query(`SELECT COUNT(*)::int AS total FROM agent_followups WHERE ${clauses.join(" AND ")}`, values);
+    return result.rows[0].total;
+  },
 };

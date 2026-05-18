@@ -1,4 +1,5 @@
 import { NavLink, Outlet } from "react-router-dom";
+import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import ChatbotWidget from "../components/common/ChatbotWidget";
 import FloatingWhatsAppButton from "../components/common/FloatingWhatsAppButton";
@@ -9,6 +10,7 @@ import { createMailtoUrl } from "../utils/email";
 const navItems = [
   { to: "/", labelKey: "nav.home" },
   { to: "/properties", labelKey: "nav.listings" },
+  { to: "/saved", labelKey: "nav.saved" },
   { to: "/rrr-road", labelKey: "nav.rrr" },
   { to: "/about", labelKey: "nav.about" },
   { to: "/faq", labelKey: "nav.faq" },
@@ -17,6 +19,7 @@ const navItems = [
 
 export default function PublicLayout() {
   const { t } = useTranslation();
+  const [menuOpen, setMenuOpen] = useState(false);
 
   return (
     <div className="min-h-screen text-ink">
@@ -29,7 +32,16 @@ export default function PublicLayout() {
               <span className="block text-xs font-extrabold uppercase text-slate-500">{t("common.officeShort")}</span>
             </span>
           </NavLink>
-          <div className="order-3 flex w-full gap-2 overflow-x-auto pb-1 md:order-none md:w-auto md:items-center md:gap-2 md:overflow-visible md:pb-0">
+          <button
+            aria-expanded={menuOpen}
+            aria-label="Toggle navigation"
+            className="btn-secondary ml-auto px-3 py-2 md:hidden"
+            onClick={() => setMenuOpen((current) => !current)}
+            type="button"
+          >
+            Menu
+          </button>
+          <div className={`${menuOpen ? "grid" : "hidden"} order-3 w-full grid-cols-2 gap-2 pb-1 md:order-none md:flex md:w-auto md:items-center md:gap-2 md:overflow-visible md:pb-0`}>
             {navItems.map((item) => (
               <NavLink
                 className={({ isActive }) =>
@@ -38,13 +50,14 @@ export default function PublicLayout() {
                   }`
                 }
                 key={item.to}
+                onClick={() => setMenuOpen(false)}
                 to={item.to}
               >
                 {t(item.labelKey)}
               </NavLink>
             ))}
           </div>
-          <div className="ml-auto flex shrink-0 items-center gap-2 sm:gap-3">
+          <div className="flex shrink-0 items-center gap-2 sm:gap-3 md:ml-auto">
             <LanguageTranslator />
             <NavLink className="btn-primary whitespace-nowrap px-3 py-2 sm:px-4 sm:py-2.5" to="/login">{t("common.agentLogin")}</NavLink>
           </div>

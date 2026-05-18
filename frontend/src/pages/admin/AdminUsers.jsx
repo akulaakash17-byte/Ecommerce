@@ -20,6 +20,8 @@ export default function AdminUsers() {
   const [form, setForm] = useState(initialForm);
   const [ownPassword, setOwnPassword] = useState({ currentPassword: "", newPassword: "" });
   const [resetPasswords, setResetPasswords] = useState({});
+  const [activeResetId, setActiveResetId] = useState(null);
+  const [filters, setFilters] = useState({ q: "", role: "" });
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [passwordSaving, setPasswordSaving] = useState(false);
@@ -96,6 +98,10 @@ export default function AdminUsers() {
       return;
     }
 
+    if (!window.confirm(`Reset password for ${item.email}?`)) {
+      return;
+    }
+
     setResetSaving((current) => ({ ...current, [item.id]: true }));
     setError("");
     setSuccess("");
@@ -103,6 +109,7 @@ export default function AdminUsers() {
     try {
       await authService.resetPassword(item.id, { password });
       updateResetPassword(item.id, "");
+      setActiveResetId(null);
       setSuccess(`Password reset for ${item.email}.`);
     } catch (requestError) {
       setError(requestError.message);
@@ -110,6 +117,15 @@ export default function AdminUsers() {
       setResetSaving((current) => ({ ...current, [item.id]: false }));
     }
   };
+
+  const filteredUsers = users.filter((item) => {
+    const query = filters.q.trim().toLowerCase();
+    const matchesQuery = query
+      ? [item.name, item.email, item.phone].filter(Boolean).some((value) => value.toLowerCase().includes(query))
+      : true;
+    const matchesRole = filters.role ? item.role === filters.role : true;
+    return matchesQuery && matchesRole;
+  });
 
   return (
     <div>
@@ -194,14 +210,40 @@ export default function AdminUsers() {
       </form>
 
       <div className="card overflow-hidden">
-        <div className="hidden grid-cols-[1fr_1fr_110px_130px_240px] gap-4 border-b border-slate-100 bg-slate-50 p-4 text-sm font-black text-slate-500 xl:grid">
-          <span>User</span><span>Contact</span><span>Role</span><span>Created</span><span>Reset password</span>
+        <div className="grid gap-3 border-b border-slate-100 bg-slate-50 p-4 md:grid-cols-[1fr_180px_auto] md:items-end">
+          <div>
+            <label className="label" htmlFor="userSearch">Search users</label>
+            <input
+              className="field"
+              id="userSearch"
+              onChange={(event) => setFilters((current) => ({ ...current, q: event.target.value }))}
+              placeholder="Name, email, or phone"
+              value={filters.q}
+            />
+          </div>
+          <div>
+            <label className="label" htmlFor="roleFilter">Role</label>
+            <select
+              className="field"
+              id="roleFilter"
+              onChange={(event) => setFilters((current) => ({ ...current, role: event.target.value }))}
+              value={filters.role}
+            >
+              <option value="">All roles</option>
+              <option value="admin">Admin</option>
+              <option value="agent">Agent</option>
+            </select>
+          </div>
+          <p className="text-sm font-black text-slate-500">{filteredUsers.length} shown</p>
+        </div>
+        <div className="hidden grid-cols-[1fr_1fr_110px_130px_260px] gap-4 border-b border-slate-100 bg-slate-50 p-4 text-sm font-black text-slate-500 xl:grid">
+          <span>User</span><span>Contact</span><span>Role</span><span>Created</span><span>Account action</span>
         </div>
         <div className="divide-y divide-slate-100">
           {loading ? (
             <div className="p-5 text-sm font-bold text-slate-500">Loading users...</div>
-          ) : users.map((item) => (
-            <div className="grid gap-3 p-4 xl:grid-cols-[1fr_1fr_110px_130px_240px] xl:items-center" key={item.id}>
+          ) : filteredUsers.map((item) => (
+            <div className="grid gap-3 p-4 xl:grid-cols-[1fr_1fr_110px_130px_260px] xl:items-center" key={item.id}>
               <div>
                 <p className="font-black">{item.name}</p>
                 <p className="text-sm text-slate-500">{item.email}</p>
@@ -209,29 +251,39 @@ export default function AdminUsers() {
               <p className="text-sm font-semibold text-slate-600">{item.phone || "No phone"}</p>
               <p className="text-sm font-black capitalize text-slate-700">{item.role}</p>
               <p className="text-sm text-slate-500">{formatDate(item.created_at)}</p>
-              <div className="flex gap-2">
-                <input
-                  className="field min-w-0 py-2"
-                  minLength="8"
-                  onChange={(event) => updateResetPassword(item.id, event.target.value)}
-                  placeholder="New password"
-                  type="password"
-                  value={resetPasswords[item.id] || ""}
-                />
-                <button
-                  className="btn-secondary px-3 py-2"
-                  disabled={resetSaving[item.id]}
-                  onClick={() => resetPassword(item)}
-                  type="button"
-                >
-                  {resetSaving[item.id] ? "Saving..." : "Reset"}
+              {item.id === user?.id ? (
+                <p className="text-sm font-bold text-slate-500">Use “Change my password” above.</p>
+              ) : activeResetId === item.id ? (
+                <div className="flex gap-2">
+                  <input
+                    className="field min-w-0 py-2"
+                    minLength="8"
+                    onChange={(event) => updateResetPassword(item.id, event.target.value)}
+                    placeholder="New password"
+                    type="password"
+                    value={resetPasswords[item.id] || ""}
+                  />
+                  <button
+                    className="btn-secondary px-3 py-2"
+                    disabled={resetSaving[item.id]}
+                    onClick={() => resetPassword(item)}
+                    type="button"
+                  >
+                    {resetSaving[item.id] ? "Saving..." : "Save"}
+                  </button>
+                  <button className="btn-secondary px-3 py-2" onClick={() => setActiveResetId(null)} type="button">Cancel</button>
+                </div>
+              ) : (
+                <button className="btn-secondary justify-self-start px-3 py-2" onClick={() => setActiveResetId(item.id)} type="button">
+                  Reset password
                 </button>
-              </div>
+              )}
             </div>
           ))}
         </div>
       </div>
       {!loading && !users.length ? <div className="mt-5"><EmptyState title="No users" message="Create the first user from this page." /></div> : null}
+      {!loading && users.length > 0 && !filteredUsers.length ? <div className="mt-5"><EmptyState title="No matching users" message="Try changing the search or role filter." /></div> : null}
     </div>
   );
 }

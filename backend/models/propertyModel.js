@@ -26,6 +26,14 @@ function buildFilters(filters = {}) {
   if (filters.village) add("village = ?", filters.village);
   if (filters.property_type) add("property_type = ?", filters.property_type);
   if (filters.status) add("status = ?", filters.status);
+  if (filters.verified === "true") add("is_verified = ?", true);
+  if (filters.near === "rrr") {
+    values.push("%RRR%");
+    const rrrIndex = `$${values.length}`;
+    values.push("%Regional Ring Road%");
+    const ringRoadIndex = `$${values.length}`;
+    clauses.push(`(title ILIKE ${rrrIndex} OR description ILIKE ${rrrIndex} OR title ILIKE ${ringRoadIndex} OR description ILIKE ${ringRoadIndex})`);
+  }
   if (filters.minPrice) add("price >= ?", Number(filters.minPrice));
   if (filters.maxPrice) add("price <= ?", Number(filters.maxPrice));
 
@@ -41,13 +49,19 @@ export const PropertyModel = {
     const limit = Math.min(Math.max(Number(filters.limit) || 12, 1), 48);
     const offset = (page - 1) * limit;
     const { where, values } = buildFilters(filters);
+    const sortSql = {
+      newest: "is_verified DESC, created_at DESC",
+      "price-asc": "price ASC, is_verified DESC, created_at DESC",
+      "price-desc": "price DESC, is_verified DESC, created_at DESC",
+      verified: "is_verified DESC, created_at DESC",
+    }[filters.sort] || "is_verified DESC, created_at DESC";
 
     const countResult = await query(`SELECT COUNT(*)::int AS total FROM properties ${where}`, values);
     const result = await query(
       `SELECT ${propertyColumns}
        FROM properties
        ${where}
-       ORDER BY is_verified DESC, created_at DESC
+       ORDER BY ${sortSql}
        LIMIT $${values.length + 1} OFFSET $${values.length + 2}`,
       [...values, limit, offset]
     );
@@ -156,5 +170,19 @@ export const PropertyModel = {
       FROM properties
     `);
     return result.rows[0];
+  },
+
+  async recentCounts(days = 7) {
+    const result = await query(
+      `SELECT
+        day::date,
+        COUNT(p.id)::int AS total
+       FROM generate_series(CURRENT_DATE - ($1::int - 1), CURRENT_DATE, interval '1 day') AS day
+       LEFT JOIN properties p ON p.created_at::date = day::date
+       GROUP BY day
+       ORDER BY day ASC`,
+      [days]
+    );
+    return result.rows;
   },
 };

@@ -117,6 +117,10 @@ export const changePassword = asyncHandler(async (req, res) => {
 });
 
 export const resetUserPassword = asyncHandler(async (req, res) => {
+  if (Number(req.params.id) === req.user.id) {
+    throw new ApiError(400, "Use change password for your own account.");
+  }
+
   const user = await UserModel.findById(req.params.id);
 
   if (!user) {

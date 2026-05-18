@@ -17,6 +17,7 @@ const resources = {
       nav: {
         home: "Home",
         listings: "Listings",
+        saved: "Saved",
         rrr: "RRR",
         about: "About",
         faq: "FAQ",
@@ -114,6 +115,7 @@ const resources = {
       nav: {
         home: "హోమ్",
         listings: "లిస్టింగ్స్",
+        saved: "సేవ్ చేసినవి",
         rrr: "ఆర్ఆర్ఆర్",
         about: "గురించి",
         faq: "ప్రశ్నలు",
@@ -211,6 +213,7 @@ const resources = {
       nav: {
         home: "होम",
         listings: "लिस्टिंग",
+        saved: "सेव्ड",
         rrr: "RRR",
         about: "हमारे बारे में",
         faq: "FAQ",

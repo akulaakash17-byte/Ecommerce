@@ -12,6 +12,7 @@ import { createWhatsAppUrl } from "../../utils/whatsapp";
 export default function PropertyDetailsPage() {
   const { idOrSlug } = useParams();
   const [property, setProperty] = useState(null);
+  const [similarProperties, setSimilarProperties] = useState([]);
   const [activeMedia, setActiveMedia] = useState(0);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -35,6 +36,29 @@ export default function PropertyDetailsPage() {
       active = false;
     };
   }, [idOrSlug]);
+
+  useEffect(() => {
+    if (!property) return;
+
+    let active = true;
+    propertyService
+      .list({
+        mandal: property.mandal,
+        property_type: property.property_type,
+        limit: 4,
+        includeSold: "true",
+      })
+      .then((result) => {
+        if (active) setSimilarProperties(result.data.filter((item) => item.id !== property.id).slice(0, 3));
+      })
+      .catch(() => {
+        if (active) setSimilarProperties([]);
+      });
+
+    return () => {
+      active = false;
+    };
+  }, [property]);
 
   const images = useMemo(() => {
     if (!property?.images?.length) return [FALLBACK_PROPERTY_IMAGE];
@@ -240,7 +264,7 @@ export default function PropertyDetailsPage() {
                 <a className="btn-secondary" href={`tel:${property.phone}`}>Call {property.phone}</a>
               </div>
             </div>
-            <div className="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
+            <div className="rounded-lg border border-slate-200 bg-white p-5 shadow-sm" id="inquiry">
               <h2 className="text-xl font-black">Send inquiry</h2>
               <p className="mt-2 text-sm leading-6 text-slate-600">
                 Share your details and the office team will coordinate site visits and next steps offline.
@@ -251,6 +275,39 @@ export default function PropertyDetailsPage() {
             </div>
           </aside>
         </section>
+
+        {similarProperties.length ? (
+          <section className="mt-8 rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
+            <div className="flex flex-col justify-between gap-3 md:flex-row md:items-end">
+              <div>
+                <p className="eyebrow">Similar properties</p>
+                <h2 className="mt-2 text-2xl font-black text-slate-950">More options around {property.mandal}</h2>
+              </div>
+              <Link className="btn-secondary self-start md:self-end" to={`/properties?mandal=${encodeURIComponent(property.mandal)}&property_type=${encodeURIComponent(property.property_type)}`}>
+                View all
+              </Link>
+            </div>
+            <div className="mt-5 grid gap-3 md:grid-cols-3">
+              {similarProperties.map((item) => (
+                <Link className="rounded-md border border-slate-200 p-4 transition hover:border-brand-600 hover:shadow-sm" key={item.id} to={`/properties/${item.slug || item.id}`}>
+                  <p className="line-clamp-2 font-black text-slate-950">{item.title}</p>
+                  <p className="mt-2 text-sm font-semibold text-slate-600">{item.village}, {item.mandal}</p>
+                  <p className="mt-3 text-lg font-black text-brand-700">{formatPrice(item.price)}</p>
+                </Link>
+              ))}
+            </div>
+          </section>
+        ) : null}
+      </div>
+      <div className="fixed inset-x-0 bottom-0 z-30 border-t border-slate-200 bg-white/95 p-3 shadow-soft backdrop-blur lg:hidden">
+        <div className="mx-auto grid max-w-md grid-cols-3 gap-2">
+          <a className="btn-secondary py-3" href={`tel:${property.phone}`}>Call</a>
+          <a className="btn-primary gap-2 bg-[#25D366] py-3 hover:bg-[#1ebe5d]" href={createWhatsAppUrl(whatsappMessage)} rel="noreferrer" target="_blank">
+            <WhatsAppIcon />
+            Chat
+          </a>
+          <a className="btn-primary py-3" href="#inquiry">Visit</a>
+        </div>
       </div>
     </main>
   );

@@ -55,9 +55,10 @@ function getRemovedImages(currentImages = [], nextImages = []) {
 }
 
 export const listProperties = asyncHandler(async (req, res) => {
+  const requestedStatus = req.query.status === "all" ? undefined : req.query.status;
   const filters = {
     ...req.query,
-    status: req.query.status || (req.query.includeSold === "true" ? undefined : "available"),
+    status: requestedStatus || (req.query.includeSold === "true" ? undefined : "available"),
   };
   const properties = await PropertyModel.list(filters);
   res.json(properties);

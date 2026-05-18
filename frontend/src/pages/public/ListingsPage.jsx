@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { useSearchParams } from "react-router-dom";
+import { useParams, useSearchParams } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import EmptyState from "../../components/common/EmptyState";
 import ErrorMessage from "../../components/common/ErrorMessage";
@@ -17,34 +17,56 @@ const emptyFilters = {
   property_type: "",
   minPrice: "",
   maxPrice: "",
+  status: "available",
+  verified: "",
+  sort: "newest",
+  near: "",
 };
 
 export default function ListingsPage() {
   const { t } = useTranslation();
+  const { mandalSlug } = useParams();
+  const routeMandal = mandalSlug ? decodeURIComponent(mandalSlug).replaceAll("-", " ") : "";
 
   useDocumentMeta({
-    title: t("listings.metaTitle"),
-    description: t("listings.metaDescription"),
-    canonicalPath: "/properties",
+    title: routeMandal ? `Properties in ${routeMandal} | Siddipet Real Estate` : t("listings.metaTitle"),
+    description: routeMandal
+      ? `Search verified plots, houses, land, and commercial properties in ${routeMandal}, Siddipet district.`
+      : t("listings.metaDescription"),
+    canonicalPath: routeMandal ? `/properties/mandal/${encodeURIComponent(mandalSlug)}` : "/properties",
   });
 
   const [searchParams, setSearchParams] = useSearchParams();
   const [filters, setFilters] = useState(() => ({
     ...emptyFilters,
     q: searchParams.get("q") || "",
-    mandal: searchParams.get("mandal") || "",
+    mandal: routeMandal || searchParams.get("mandal") || "",
     village: searchParams.get("village") || "",
     property_type: searchParams.get("property_type") || "",
     minPrice: searchParams.get("minPrice") || "",
     maxPrice: searchParams.get("maxPrice") || "",
+    status: searchParams.get("status") || "available",
+    verified: searchParams.get("verified") || "",
+    sort: searchParams.get("sort") || "newest",
+    near: searchParams.get("near") || "",
   }));
   const [result, setResult] = useState({ data: [], meta: null });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const page = Number(searchParams.get("page") || 1);
 
+  useEffect(() => {
+    if (routeMandal) {
+      setFilters((current) => ({ ...current, mandal: routeMandal }));
+    }
+  }, [routeMandal]);
+
   const query = useMemo(() => {
     const params = { ...filters, page, limit: 12 };
+    if (params.status === "all") {
+      delete params.status;
+      params.includeSold = "true";
+    }
     Object.keys(params).forEach((key) => {
       if (!params[key]) delete params[key];
     });
@@ -77,13 +99,13 @@ export default function ListingsPage() {
     event.preventDefault();
     const params = new URLSearchParams();
     Object.entries(filters).forEach(([key, value]) => {
-      if (value) params.set(key, value);
+      if (value && !(key === "mandal" && routeMandal)) params.set(key, value);
     });
     setSearchParams(params);
   };
 
   const resetFilters = () => {
-    setFilters(emptyFilters);
+    setFilters({ ...emptyFilters, mandal: routeMandal });
     setSearchParams({});
   };
 
@@ -100,7 +122,7 @@ export default function ListingsPage() {
           <div className="flex flex-col justify-between gap-4 md:flex-row md:items-end">
             <div>
               <p className="eyebrow">{t("listings.eyebrow")}</p>
-              <h1 className="section-title mt-2">{t("listings.title")}</h1>
+              <h1 className="section-title mt-2">{routeMandal ? `Properties in ${routeMandal}` : t("listings.title")}</h1>
               <p className="mt-3 max-w-2xl text-sm leading-6 text-slate-600">
                 {t("listings.intro")}
               </p>
@@ -114,7 +136,7 @@ export default function ListingsPage() {
       </div>
 
       <div className="container-page py-8">
-        <PropertyFilters filters={filters} onChange={setFilters} onReset={resetFilters} onSubmit={applyFilters} />
+        <PropertyFilters filters={filters} isMandalLocked={Boolean(routeMandal)} onChange={setFilters} onReset={resetFilters} onSubmit={applyFilters} />
         <div className="mt-6">
           <ErrorMessage message={error} />
         </div>

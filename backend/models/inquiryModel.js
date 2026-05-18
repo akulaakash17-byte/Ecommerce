@@ -83,6 +83,38 @@ export const InquiryModel = {
     return result.rows[0].total;
   },
 
+  async countToday(user = null) {
+    const params = [];
+    const clauses = ["created_at::date = CURRENT_DATE"];
+
+    if (user && user.role !== "admin") {
+      params.push(user.id);
+      clauses.push(`assigned_to = $${params.length}`);
+    }
+
+    const result = await query(`SELECT COUNT(*)::int AS total FROM inquiries WHERE ${clauses.join(" AND ")}`, params);
+    return result.rows[0].total;
+  },
+
+  async recentCounts(days = 7, user = null) {
+    const params = [days];
+    const userJoin = user && user.role !== "admin" ? "AND i.assigned_to = $2" : "";
+
+    if (userJoin) params.push(user.id);
+
+    const result = await query(
+      `SELECT
+        day::date,
+        COUNT(i.id)::int AS total
+       FROM generate_series(CURRENT_DATE - ($1::int - 1), CURRENT_DATE, interval '1 day') AS day
+       LEFT JOIN inquiries i ON i.created_at::date = day::date ${userJoin}
+       GROUP BY day
+       ORDER BY day ASC`,
+      params
+    );
+    return result.rows;
+  },
+
   async updateStatus(id, { status, status_note }) {
     const result = await query(
       `UPDATE inquiries

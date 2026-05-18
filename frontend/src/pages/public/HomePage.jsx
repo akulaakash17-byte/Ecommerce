@@ -63,6 +63,7 @@ export default function HomePage() {
   ];
   const firstMandalRow = mandals.slice(0, Math.ceil(mandals.length / 2));
   const secondMandalRow = mandals.slice(Math.ceil(mandals.length / 2));
+  const mandalPath = (mandal) => `/properties/mandal/${encodeURIComponent(mandal.replace(/\s+/g, "-"))}`;
 
   const renderMandalRow = (rowMandals, direction = "left") => (
     <div className={`mandal-marquee mt-4 overflow-hidden py-2 ${direction === "right" ? "mandal-marquee-reverse" : ""}`}>
@@ -73,7 +74,7 @@ export default function HomePage() {
             className="group w-56 shrink-0 rounded-lg border border-slate-200 bg-white p-5 font-black text-slate-800 shadow-sm transition hover:-translate-y-1 hover:border-brand-600 hover:text-brand-700 hover:shadow-soft"
             key={`${direction}-${mandal}-${index}`}
             tabIndex={index >= rowMandals.length ? -1 : undefined}
-            to={`/properties?mandal=${encodeURIComponent(mandal)}`}
+            to={mandalPath(mandal)}
           >
             <span>{mandal}</span>
             <span className="mt-3 block text-xs font-extrabold uppercase text-slate-400 group-hover:text-brand-600">{t("common.browseListings")}</span>
@@ -120,6 +121,19 @@ export default function HomePage() {
               ))}
             </div>
             <p className="mt-5 text-sm font-semibold text-slate-200">{OFFICE_ADDRESS}</p>
+            <div className="mt-8 grid max-w-3xl gap-3 sm:grid-cols-4">
+              {[
+                ["100%", "Offline support"],
+                ["20+", "Local mandals"],
+                ["Verified", "Listing checks"],
+                ["Fast", "Site visit help"],
+              ].map(([value, label]) => (
+                <div className="border-l border-white/25 pl-4" key={label}>
+                  <p className="text-2xl font-black">{value}</p>
+                  <p className="mt-1 text-xs font-bold uppercase text-slate-200">{label}</p>
+                </div>
+              ))}
+            </div>
           </div>
         </div>
       </section>

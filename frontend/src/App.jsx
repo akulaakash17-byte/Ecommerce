@@ -16,6 +16,7 @@ import ListingsPage from "./pages/public/ListingsPage";
 import LoginPage from "./pages/public/LoginPage";
 import PropertyDetailsPage from "./pages/public/PropertyDetailsPage";
 import RrrRoadPage from "./pages/public/RrrRoadPage";
+import SavedPropertiesPage from "./pages/public/SavedPropertiesPage";
 import ProtectedRoute from "./routes/ProtectedRoute";
 
 function App() {
@@ -24,7 +25,9 @@ function App() {
       <Route element={<PublicLayout />}>
         <Route index element={<HomePage />} />
         <Route path="properties" element={<ListingsPage />} />
+        <Route path="properties/mandal/:mandalSlug" element={<ListingsPage />} />
         <Route path="properties/:idOrSlug" element={<PropertyDetailsPage />} />
+        <Route path="saved" element={<SavedPropertiesPage />} />
         <Route path="rrr-road" element={<RrrRoadPage />} />
         <Route path="about" element={<AboutPage />} />
         <Route path="faq" element={<FaqPage />} />
