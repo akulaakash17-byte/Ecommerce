@@ -8,6 +8,7 @@ const adminItems = [
   { to: "/admin/inquiries", label: "Inquiries" },
   { to: "/admin/follow-ups", label: "Follow-ups" },
   { to: "/admin/users", label: "Users", adminOnly: true },
+  { to: "/admin/audit-logs", label: "Audit Logs", adminOnly: true },
 ];
 
 export default function AdminLayout() {

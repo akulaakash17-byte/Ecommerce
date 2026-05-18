@@ -7,7 +7,7 @@ export const getDashboardOverview = asyncHandler(async (req, res) => {
     PropertyModel.stats(),
     InquiryModel.count(),
     PropertyModel.list({ includeSold: "true", limit: 5 }),
-    InquiryModel.list({ limit: 5 }),
+    InquiryModel.list({ limit: 5 }, req.user),
   ]);
 
   res.json({

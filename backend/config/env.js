@@ -6,8 +6,12 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 dotenv.config({ path: path.resolve(__dirname, "../.env") });
 
-const isProduction = process.env.NODE_ENV === "production";
+const nodeEnv = process.env.NODE_ENV || "development";
+const isProduction = nodeEnv === "production";
 const jwtSecret = process.env.JWT_SECRET || "change-me";
+const adminPassword = process.env.ADMIN_PASSWORD || "admin12345";
+const clientUrl = process.env.CLIENT_URL || "http://127.0.0.1:5173";
+const clientUrls = splitCsv(process.env.CLIENT_URLS || process.env.CLIENT_URL || clientUrl);
 
 function splitCsv(value) {
   return String(value || "")
@@ -24,14 +28,45 @@ function requireStrongProductionSecret(name, value) {
   }
 }
 
+function requireStrongProductionPassword(name, value) {
+  if (!isProduction) return;
+
+  const weakPasswords = new Set(["admin12345", "change_me", "password", "replace_me"]);
+
+  if (!value || value.length < 12 || weakPasswords.has(value.toLowerCase())) {
+    throw new Error(`${name} must be set to a unique value of at least 12 characters in production.`);
+  }
+}
+
+function requireProductionClientUrls(urls) {
+  if (!isProduction) return;
+
+  const hasLocalhost = urls.some((url) => /(^|\/\/)(localhost|127\.0\.0\.1)(:|\/|$)/i.test(url));
+
+  if (!urls.length || hasLocalhost) {
+    throw new Error("CLIENT_URLS must contain only real production origins in production.");
+  }
+}
+
+function requireProductionDatabaseCredentials() {
+  if (!isProduction) return;
+
+  if (!process.env.DATABASE_URL && !process.env.DB_PASSWORD) {
+    throw new Error("DATABASE_URL or DB_PASSWORD must be set in production.");
+  }
+}
+
 requireStrongProductionSecret("JWT_SECRET", jwtSecret);
+requireStrongProductionPassword("ADMIN_PASSWORD", adminPassword);
+requireProductionClientUrls(clientUrls);
+requireProductionDatabaseCredentials();
 
 export const env = {
-  nodeEnv: process.env.NODE_ENV || "development",
+  nodeEnv,
   isProduction,
   port: Number(process.env.PORT || 5050),
-  clientUrl: process.env.CLIENT_URL || "http://127.0.0.1:5173",
-  clientUrls: splitCsv(process.env.CLIENT_URLS || process.env.CLIENT_URL || "http://127.0.0.1:5173"),
+  clientUrl,
+  clientUrls,
   jwtSecret,
   jwtExpiresIn: process.env.JWT_EXPIRES_IN || "7d",
   authCookieName: process.env.AUTH_COOKIE_NAME || "rew_session",
@@ -55,7 +90,7 @@ export const env = {
     name: process.env.ADMIN_NAME || "Srinivas",
     phone: process.env.ADMIN_PHONE || "9849972116",
     email: process.env.ADMIN_EMAIL || "akulasrinu62@gmail.com",
-    password: process.env.ADMIN_PASSWORD || "admin12345",
+    password: adminPassword,
   },
   cloudinary: {
     cloudName: process.env.CLOUDINARY_CLOUD_NAME || "",

@@ -54,9 +54,43 @@ const propertyUpload = multer({
   { name: "video", maxCount: 1 },
 ]);
 
+function getUploadedFiles(files = {}) {
+  return Object.values(files).flat();
+}
+
+function removeUploadedFiles(files = {}) {
+  getUploadedFiles(files).forEach((file) => {
+    if (file?.path) {
+      fs.unlink(file.path, () => {});
+    }
+  });
+}
+
+function validateUploadedFileSizes(files = {}) {
+  const oversizedFile = getUploadedFiles(files).find((file) => {
+    const maxSizeMb = file.fieldname === "video" ? env.upload.maxVideoFileSizeMb : env.upload.maxFileSizeMb;
+    return file.size > maxSizeMb * 1024 * 1024;
+  });
+
+  if (!oversizedFile) {
+    return null;
+  }
+
+  const fileKind = oversizedFile.fieldname === "video" ? "Video" : "Photo";
+  const maxSizeMb = oversizedFile.fieldname === "video" ? env.upload.maxVideoFileSizeMb : env.upload.maxFileSizeMb;
+  return new ApiError(400, `${fileKind} uploads can be up to ${maxSizeMb}MB.`);
+}
+
 export function uploadPropertyImages(req, res, next) {
   propertyUpload(req, res, (error) => {
     if (!error) {
+      const sizeError = validateUploadedFileSizes(req.files);
+
+      if (sizeError) {
+        removeUploadedFiles(req.files);
+        return next(sizeError);
+      }
+
       return next();
     }
 

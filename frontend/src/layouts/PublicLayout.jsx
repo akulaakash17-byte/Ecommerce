@@ -1,4 +1,5 @@
 import { NavLink, Outlet } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import ChatbotWidget from "../components/common/ChatbotWidget";
 import FloatingWhatsAppButton from "../components/common/FloatingWhatsAppButton";
 import LanguageTranslator from "../components/common/LanguageTranslator";
@@ -6,24 +7,26 @@ import { OFFICE_ADDRESS, OFFICE_EMAILS, OFFICE_PHONES } from "../data/propertyTy
 import { createMailtoUrl } from "../utils/email";
 
 const navItems = [
-  { to: "/", label: "Home" },
-  { to: "/properties", label: "Listings" },
-  { to: "/rrr-road", label: "RRR" },
-  { to: "/about", label: "About" },
-  { to: "/faq", label: "FAQ" },
-  { to: "/contact", label: "Contact" },
+  { to: "/", labelKey: "nav.home" },
+  { to: "/properties", labelKey: "nav.listings" },
+  { to: "/rrr-road", labelKey: "nav.rrr" },
+  { to: "/about", labelKey: "nav.about" },
+  { to: "/faq", labelKey: "nav.faq" },
+  { to: "/contact", labelKey: "nav.contact" },
 ];
 
 export default function PublicLayout() {
+  const { t } = useTranslation();
+
   return (
     <div className="min-h-screen text-ink">
       <header className="sticky top-0 z-40 border-b border-slate-200/80 bg-white/90 shadow-sm backdrop-blur-xl">
         <nav className="container-page flex min-h-16 flex-wrap items-center justify-between gap-3 py-2">
-          <NavLink className="flex items-center gap-3 text-lg font-black text-slate-950" to="/">
+          <NavLink className="flex min-w-0 flex-1 items-center gap-3 text-lg font-black text-slate-950 md:flex-none" to="/">
             <img alt="" className="h-10 w-10 rounded-md shadow-sm" src="/favicon.svg" />
-            <span>
-              Siddipet Real Estate
-              <span className="block text-xs font-extrabold uppercase text-slate-500">Pragnapur office</span>
+            <span className="min-w-0">
+              {t("common.brand")}
+              <span className="block text-xs font-extrabold uppercase text-slate-500">{t("common.officeShort")}</span>
             </span>
           </NavLink>
           <div className="order-3 flex w-full gap-2 overflow-x-auto pb-1 md:order-none md:w-auto md:items-center md:gap-2 md:overflow-visible md:pb-0">
@@ -37,13 +40,13 @@ export default function PublicLayout() {
                 key={item.to}
                 to={item.to}
               >
-                {item.label}
+                {t(item.labelKey)}
               </NavLink>
             ))}
           </div>
-          <div className="flex items-center gap-3">
+          <div className="ml-auto flex shrink-0 items-center gap-2 sm:gap-3">
             <LanguageTranslator />
-            <NavLink className="btn-primary whitespace-nowrap" to="/login">Agent Login</NavLink>
+            <NavLink className="btn-primary whitespace-nowrap px-3 py-2 sm:px-4 sm:py-2.5" to="/login">{t("common.agentLogin")}</NavLink>
           </div>
         </nav>
       </header>
@@ -57,18 +60,18 @@ export default function PublicLayout() {
           <div>
             <div className="flex items-center gap-3">
               <img alt="" className="h-11 w-11 rounded-md" src="/favicon.svg" />
-              <h2 className="text-xl font-black">Siddipet Real Estate</h2>
+              <h2 className="text-xl font-black">{t("common.brand")}</h2>
             </div>
             <p className="mt-3 max-w-md text-sm leading-6 text-slate-300">
-              Property discovery and listing support for Siddipet district. Deals, visits, and documentation are handled offline by the Pragnapur office.
+              {t("footer.description")}
             </p>
           </div>
           <div>
-            <p className="font-black">Office</p>
+            <p className="font-black">{t("footer.office")}</p>
             <p className="mt-3 text-sm leading-6 text-slate-300">{OFFICE_ADDRESS}</p>
           </div>
           <div>
-            <p className="font-black">Contact</p>
+            <p className="font-black">{t("footer.contact")}</p>
             <div className="mt-3 space-y-2">
               {OFFICE_PHONES.map((phone) => (
                 <a className="block text-sm text-slate-300 hover:text-white" href={`tel:${phone.href}`} key={phone.href}>
@@ -84,13 +87,13 @@ export default function PublicLayout() {
               ))}
             </div>
             <NavLink className="mt-3 block text-sm text-slate-300 hover:text-white" to="/contact">
-              Send inquiry
+              {t("common.sendInquiry")}
             </NavLink>
             <NavLink className="mt-2 block text-sm text-slate-300 hover:text-white" to="/faq">
-              FAQ
+              {t("nav.faq")}
             </NavLink>
             <NavLink className="mt-2 block text-sm text-slate-300 hover:text-white" to="/rrr-road">
-              RRR Road
+              {t("nav.rrr")}
             </NavLink>
           </div>
         </div>

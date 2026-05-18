@@ -1,7 +1,13 @@
 import express from "express";
-import { createInquiry, deleteInquiry, listInquiries, updateInquiryStatus } from "../controllers/inquiryController.js";
+import {
+  assignInquiry,
+  createInquiry,
+  deleteInquiry,
+  listInquiries,
+  updateInquiryStatus,
+} from "../controllers/inquiryController.js";
 import { authorizeRoles, protect } from "../middleware/authMiddleware.js";
-import { idParamRule, inquiryRules, inquiryStatusRules } from "../middleware/validators.js";
+import { idParamRule, inquiryAssignmentRules, inquiryRules, inquiryStatusRules } from "../middleware/validators.js";
 import { validateRequest } from "../middleware/validateRequest.js";
 
 const router = express.Router();
@@ -16,6 +22,15 @@ router.patch(
   inquiryStatusRules,
   validateRequest,
   updateInquiryStatus
+);
+router.patch(
+  "/:id/assignment",
+  protect,
+  authorizeRoles("admin"),
+  idParamRule,
+  inquiryAssignmentRules,
+  validateRequest,
+  assignInquiry
 );
 router.delete("/:id", protect, authorizeRoles("admin"), idParamRule, validateRequest, deleteInquiry);
 

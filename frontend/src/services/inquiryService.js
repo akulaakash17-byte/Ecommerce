@@ -16,6 +16,11 @@ export const inquiryService = {
     return data;
   },
 
+  async assign(id, payload) {
+    const { data } = await apiClient.patch(`/inquiries/${id}/assignment`, payload);
+    return data;
+  },
+
   async remove(id) {
     const { data } = await apiClient.delete(`/inquiries/${id}`);
     return data;

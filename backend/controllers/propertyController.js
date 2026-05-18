@@ -1,7 +1,13 @@
 import { ApiError } from "../middleware/errorMiddleware.js";
+import { AuditLogModel } from "../models/auditLogModel.js";
 import { PropertyModel } from "../models/propertyModel.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
-import { storeUploadedImages, storeUploadedVideo } from "../utils/imageStorage.js";
+import {
+  deleteStoredMedia,
+  deleteStoredMediaMany,
+  storeUploadedImages,
+  storeUploadedVideo,
+} from "../utils/imageStorage.js";
 import { createBaseSlug } from "../utils/slug.js";
 
 async function createUniqueSlug(property, ignoredId = null) {
@@ -35,6 +41,17 @@ function parseExistingImages(value) {
 
 function getUploadedImages(files = {}) {
   return [...(files.images || []), ...(files["images[]"] || [])];
+}
+
+function recordAudit(entry) {
+  AuditLogModel.create(entry).catch((error) => {
+    console.error("Audit log write failed:", error.message);
+  });
+}
+
+function getRemovedImages(currentImages = [], nextImages = []) {
+  const next = new Set(nextImages);
+  return currentImages.filter((image) => !next.has(image));
 }
 
 export const listProperties = asyncHandler(async (req, res) => {
@@ -71,6 +88,15 @@ export const createProperty = asyncHandler(async (req, res) => {
   propertyInput.slug = await createUniqueSlug(propertyInput);
   const property = await PropertyModel.create(propertyInput);
 
+  recordAudit({
+    actor_id: req.user.id,
+    action: "property.created",
+    entity_type: "property",
+    entity_id: property.id,
+    entity_label: property.title,
+    metadata: { status: property.status, slug: property.slug },
+  });
+
   res.status(201).json(property);
 });
 
@@ -86,6 +112,7 @@ export const updateProperty = asyncHandler(async (req, res) => {
   const existingImages = parseExistingImages(req.body.existingImages);
   const existingVideo = req.body.existingVideo || "";
   const nextImages = [...(existingImages || current.images || []), ...uploadedImages];
+  const nextVideo = uploadedVideo || existingVideo;
   const shouldRefreshSlug =
     req.body.title !== current.title || req.body.mandal !== current.mandal || req.body.village !== current.village;
 
@@ -99,7 +126,7 @@ export const updateProperty = asyncHandler(async (req, res) => {
     property_type: req.body.property_type,
     land_area: req.body.land_area || "",
     images: nextImages,
-    video_url: uploadedVideo || existingVideo,
+    video_url: nextVideo,
     owner_name: req.body.owner_name || "",
     phone: req.body.phone,
     is_verified: parseBoolean(req.body.is_verified),
@@ -111,6 +138,25 @@ export const updateProperty = asyncHandler(async (req, res) => {
   }
 
   const property = await PropertyModel.update(req.params.id, propertyInput);
+  await deleteStoredMediaMany(getRemovedImages(current.images || [], nextImages));
+
+  if (current.video_url && current.video_url !== nextVideo) {
+    await deleteStoredMedia(current.video_url, "video");
+  }
+
+  recordAudit({
+    actor_id: req.user.id,
+    action: "property.updated",
+    entity_type: "property",
+    entity_id: property.id,
+    entity_label: property.title,
+    metadata: {
+      changedFields: Object.keys(propertyInput),
+      removedImages: getRemovedImages(current.images || [], nextImages).length,
+      replacedVideo: Boolean(current.video_url && current.video_url !== nextVideo),
+    },
+  });
+
   res.json(property);
 });
 
@@ -120,6 +166,18 @@ export const deleteProperty = asyncHandler(async (req, res) => {
   if (!property) {
     throw new ApiError(404, "Property not found.");
   }
+
+  await deleteStoredMediaMany(property.images || []);
+  await deleteStoredMedia(property.video_url, "video");
+
+  recordAudit({
+    actor_id: req.user.id,
+    action: "property.deleted",
+    entity_type: "property",
+    entity_id: property.id,
+    entity_label: property.title,
+    metadata: { slug: property.slug, imageCount: property.images?.length || 0, hadVideo: Boolean(property.video_url) },
+  });
 
   res.json({ message: "Property deleted.", property });
 });

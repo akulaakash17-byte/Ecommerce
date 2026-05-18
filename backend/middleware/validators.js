@@ -17,6 +17,15 @@ export const userRules = [
   body("role").isIn(["admin", "agent"]).withMessage("Role must be admin or agent."),
 ];
 
+export const changePasswordRules = [
+  body("currentPassword").notEmpty().withMessage("Current password is required."),
+  body("newPassword").isLength({ min: 8 }).withMessage("New password must be at least 8 characters."),
+];
+
+export const resetPasswordRules = [
+  body("password").isLength({ min: 8 }).withMessage("Password must be at least 8 characters."),
+];
+
 export const propertyRules = [
   body("title").trim().isLength({ min: 3 }).withMessage("Property title is required."),
   body("description").trim().isLength({ min: 10 }).withMessage("Description is required."),
@@ -49,6 +58,10 @@ export const inquiryRules = [
 export const inquiryStatusRules = [
   body("status").isIn(["new", "contacted", "closed"]).withMessage("Status must be new, contacted, or closed."),
   body("status_note").optional({ values: "falsy" }).trim().isLength({ min: 2 }),
+];
+
+export const inquiryAssignmentRules = [
+  body("assigned_to").optional({ values: "falsy" }).isInt({ min: 1 }).withMessage("Assigned user must be a valid id."),
 ];
 
 export const chatbotRules = [

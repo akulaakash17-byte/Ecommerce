@@ -1,83 +1,32 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect } from "react";
+import { useTranslation } from "react-i18next";
 
 const languages = [
-  { code: "en", label: "EN" },
-  { code: "te", label: "తెలుగు" },
-  { code: "hi", label: "हिन्दी" },
+  { code: "en", labelKey: "translator.english", shortLabel: "EN" },
+  { code: "te", labelKey: "translator.telugu", shortLabel: "TE" },
+  { code: "hi", labelKey: "translator.hindi", shortLabel: "HI" },
 ];
 
-const googleTranslateScriptId = "google-translate-script";
-const googleTranslateElementId = "google_translate_element";
-
-function getCookie(name) {
-  return document.cookie
-    .split("; ")
-    .find((cookie) => cookie.startsWith(`${name}=`))
-    ?.split("=")[1];
-}
-
-function getCurrentLanguage() {
-  const translationCookie = getCookie("googtrans");
-  return translationCookie?.split("/").filter(Boolean).at(-1) || "en";
-}
-
-function setTranslationCookie(languageCode) {
-  const value = `/en/${languageCode}`;
-  const expires = "expires=Fri, 31 Dec 9999 23:59:59 GMT";
-  const hostname = window.location.hostname;
-
-  document.cookie = `googtrans=${value};path=/;${expires}`;
-
-  if (hostname && hostname !== "localhost" && !/^\d+\.\d+\.\d+\.\d+$/.test(hostname)) {
-    document.cookie = `googtrans=${value};path=/;domain=.${hostname};${expires}`;
-  }
-}
-
 export default function LanguageTranslator() {
-  const [activeLanguage, setActiveLanguage] = useState(() => getCurrentLanguage());
-  const activeCodes = useMemo(() => new Set(languages.map((language) => language.code)), []);
+  const { i18n, t } = useTranslation();
+  const activeLanguage = i18n.resolvedLanguage || i18n.language || "en";
 
   useEffect(() => {
-    document.documentElement.lang = activeCodes.has(activeLanguage) ? activeLanguage : "en";
+    document.documentElement.lang = activeLanguage;
     document.documentElement.dir = "ltr";
-  }, [activeCodes, activeLanguage]);
-
-  useEffect(() => {
-    window.googleTranslateElementInit = () => {
-      if (!window.google?.translate?.TranslateElement) return;
-
-      new window.google.translate.TranslateElement(
-        {
-          autoDisplay: false,
-          includedLanguages: languages.map((language) => language.code).join(","),
-          pageLanguage: "en",
-        },
-        googleTranslateElementId
-      );
-    };
-
-    if (document.getElementById(googleTranslateScriptId)) return;
-
-    const script = document.createElement("script");
-    script.id = googleTranslateScriptId;
-    script.src = "https://translate.google.com/translate_a/element.js?cb=googleTranslateElementInit";
-    script.async = true;
-    document.body.appendChild(script);
-  }, []);
+    localStorage.setItem("appLanguage", activeLanguage);
+  }, [activeLanguage]);
 
   const changeLanguage = (languageCode) => {
-    if (!activeCodes.has(languageCode) || languageCode === activeLanguage) return;
-
-    setTranslationCookie(languageCode);
-    setActiveLanguage(languageCode);
-    window.location.reload();
+    if (languageCode === activeLanguage) return;
+    i18n.changeLanguage(languageCode);
   };
 
   return (
-    <div className="notranslate flex items-center rounded-md border border-slate-200 bg-white p-1" translate="no">
-      <div className="hidden" id={googleTranslateElementId} />
+    <div aria-label={t("translator.label")} className="flex items-center rounded-md border border-slate-200 bg-white p-1">
       {languages.map((language) => (
         <button
+          aria-label={t(language.labelKey)}
           aria-pressed={activeLanguage === language.code}
           className={`rounded px-2.5 py-1.5 text-xs font-black transition ${
             activeLanguage === language.code
@@ -86,9 +35,10 @@ export default function LanguageTranslator() {
           }`}
           key={language.code}
           onClick={() => changeLanguage(language.code)}
+          title={t(language.labelKey)}
           type="button"
         >
-          {language.label}
+          {language.shortLabel}
         </button>
       ))}
     </div>

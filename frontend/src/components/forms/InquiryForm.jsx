@@ -67,7 +67,7 @@ export default function InquiryForm({ propertyId }) {
       {status.success ? (
         <div
           aria-live="polite"
-          className="fixed right-4 top-24 z-50 max-w-sm rounded-lg border border-brand-100 bg-white px-4 py-3 text-sm font-bold text-brand-700 shadow-soft"
+          className="fixed left-4 right-4 top-24 z-50 rounded-lg border border-brand-100 bg-white px-4 py-3 text-sm font-bold text-brand-700 shadow-soft sm:left-auto sm:max-w-sm"
           role="status"
         >
           <div className="flex items-start justify-between gap-3">

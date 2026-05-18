@@ -53,11 +53,13 @@ ALTER TABLE inquiries ADD COLUMN IF NOT EXISTS phone VARCHAR(30);
 ALTER TABLE inquiries ADD COLUMN IF NOT EXISTS message TEXT;
 ALTER TABLE inquiries ADD COLUMN IF NOT EXISTS status VARCHAR(20) NOT NULL DEFAULT 'new';
 ALTER TABLE inquiries ADD COLUMN IF NOT EXISTS status_note TEXT;
+ALTER TABLE inquiries ADD COLUMN IF NOT EXISTS assigned_to INTEGER;
 ALTER TABLE inquiries ADD COLUMN IF NOT EXISTS updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW();
 ALTER TABLE inquiries ADD COLUMN IF NOT EXISTS created_at TIMESTAMPTZ NOT NULL DEFAULT NOW();
 
 CREATE INDEX IF NOT EXISTS idx_inquiries_property_id ON inquiries(property_id);
 CREATE INDEX IF NOT EXISTS idx_inquiries_status ON inquiries(status);
+CREATE INDEX IF NOT EXISTS idx_inquiries_assigned_to ON inquiries(assigned_to);
 CREATE INDEX IF NOT EXISTS idx_inquiries_created_at ON inquiries(created_at);
 
 CREATE TABLE IF NOT EXISTS agent_followups (
@@ -95,3 +97,19 @@ ALTER TABLE notification_logs ADD COLUMN IF NOT EXISTS created_at TIMESTAMPTZ NO
 
 CREATE INDEX IF NOT EXISTS idx_notification_logs_inquiry ON notification_logs(inquiry_id);
 CREATE INDEX IF NOT EXISTS idx_notification_logs_status ON notification_logs(status);
+
+CREATE TABLE IF NOT EXISTS audit_logs (
+  id SERIAL PRIMARY KEY
+);
+
+ALTER TABLE audit_logs ADD COLUMN IF NOT EXISTS actor_id INTEGER;
+ALTER TABLE audit_logs ADD COLUMN IF NOT EXISTS action VARCHAR(80);
+ALTER TABLE audit_logs ADD COLUMN IF NOT EXISTS entity_type VARCHAR(80);
+ALTER TABLE audit_logs ADD COLUMN IF NOT EXISTS entity_id INTEGER;
+ALTER TABLE audit_logs ADD COLUMN IF NOT EXISTS entity_label VARCHAR(220);
+ALTER TABLE audit_logs ADD COLUMN IF NOT EXISTS metadata JSONB NOT NULL DEFAULT '{}'::jsonb;
+ALTER TABLE audit_logs ADD COLUMN IF NOT EXISTS created_at TIMESTAMPTZ NOT NULL DEFAULT NOW();
+
+CREATE INDEX IF NOT EXISTS idx_audit_logs_actor ON audit_logs(actor_id);
+CREATE INDEX IF NOT EXISTS idx_audit_logs_entity ON audit_logs(entity_type, entity_id);
+CREATE INDEX IF NOT EXISTS idx_audit_logs_created_at ON audit_logs(created_at);

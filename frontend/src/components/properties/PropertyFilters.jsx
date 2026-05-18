@@ -1,8 +1,10 @@
+import { useTranslation } from "react-i18next";
 import { PROPERTY_TYPES } from "../../data/propertyTypes";
 import { useLocations } from "../../hooks/useLocations";
 import SearchSelect from "../forms/SearchSelect";
 
 export default function PropertyFilters({ filters, onChange, onSubmit, onReset }) {
+  const { t } = useTranslation();
   const { mandals, villages, loading } = useLocations(filters.mandal);
 
   const update = (key, value) => {
@@ -16,28 +18,28 @@ export default function PropertyFilters({ filters, onChange, onSubmit, onReset }
   return (
     <form className="card grid gap-4 p-5 md:grid-cols-2 lg:grid-cols-6" onSubmit={onSubmit}>
       <div className="lg:col-span-2">
-        <label className="label" htmlFor="q">Search</label>
+        <label className="label" htmlFor="q">{t("filters.search")}</label>
         <input
           className="field py-3"
           id="q"
           onChange={(event) => update("q", event.target.value)}
-          placeholder="Plot, house, village..."
+          placeholder={t("filters.searchPlaceholder")}
           value={filters.q}
         />
       </div>
       <div>
-        <label className="label" htmlFor="mandal">Mandal</label>
+        <label className="label" htmlFor="mandal">{t("filters.mandal")}</label>
         <SearchSelect
           id="mandal"
           isClearable
           onChange={(value) => update("mandal", value)}
           options={mandals}
-          placeholder="All mandals"
+          placeholder={t("filters.allMandals")}
           value={filters.mandal}
         />
       </div>
       <div>
-        <label className="label" htmlFor="village">Village</label>
+        <label className="label" htmlFor="village">{t("filters.village")}</label>
         <select
           className="field py-3"
           disabled={!filters.mandal || loading.villages}
@@ -45,36 +47,36 @@ export default function PropertyFilters({ filters, onChange, onSubmit, onReset }
           onChange={(event) => update("village", event.target.value)}
           value={filters.village}
         >
-          <option value="">All villages</option>
+          <option value="">{t("filters.allVillages")}</option>
           {villages.map((village) => (
             <option key={village} value={village}>{village}</option>
           ))}
         </select>
       </div>
       <div>
-        <label className="label" htmlFor="property_type">Type</label>
+        <label className="label" htmlFor="property_type">{t("filters.type")}</label>
         <SearchSelect
           id="property_type"
           isClearable
           onChange={(value) => update("property_type", value)}
           options={PROPERTY_TYPES}
-          placeholder="All types"
+          placeholder={t("filters.allTypes")}
           value={filters.property_type}
         />
       </div>
       <div className="grid grid-cols-2 gap-2 lg:col-span-1">
         <div>
-          <label className="label" htmlFor="minPrice">Min</label>
+          <label className="label" htmlFor="minPrice">{t("filters.min")}</label>
           <input className="field py-3" id="minPrice" min="0" onChange={(event) => update("minPrice", event.target.value)} placeholder="₹" type="number" value={filters.minPrice} />
         </div>
         <div>
-          <label className="label" htmlFor="maxPrice">Max</label>
+          <label className="label" htmlFor="maxPrice">{t("filters.max")}</label>
           <input className="field py-3" id="maxPrice" min="0" onChange={(event) => update("maxPrice", event.target.value)} placeholder="₹" type="number" value={filters.maxPrice} />
         </div>
       </div>
       <div className="flex flex-wrap items-end gap-2 md:col-span-2 lg:col-span-6">
-        <button className="btn-primary px-5 py-3" type="submit">Apply filters</button>
-        <button className="btn-secondary px-5 py-3" onClick={onReset} type="button">Reset</button>
+        <button className="btn-primary px-5 py-3" type="submit">{t("filters.apply")}</button>
+        <button className="btn-secondary px-5 py-3" onClick={onReset} type="button">{t("filters.reset")}</button>
       </div>
     </form>
   );

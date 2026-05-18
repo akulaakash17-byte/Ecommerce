@@ -201,27 +201,27 @@ export default function RrrRoadPage() {
     <main>
       <section className="relative overflow-hidden bg-slate-950 text-white">
         <img
-          alt="Regional highway corridor near developing real estate locations"
+          alt="Komati Cheruvu bridge in Siddipet, Telangana"
           className="absolute inset-0 h-full w-full object-cover opacity-45"
-          src="https://images.unsplash.com/photo-1485738422979-f5c462d49f74?auto=format&fit=crop&w=1600&q=85"
+          src="https://cdn.s3waas.gov.in/s38613985ec49eb8f757ae6439e879bb2a/uploads/2019/11/2020070766.jpg"
         />
-        <div className="container-page relative grid min-h-[560px] items-center py-16">
+        <div className="container-page relative grid min-h-[500px] items-center py-14 sm:min-h-[560px] sm:py-16">
           <div className="max-w-4xl">
             <p className="eyebrow text-brand-100">Hyderabad Regional Ring Road</p>
-            <h1 className="mt-4 text-4xl font-black leading-tight md:text-6xl">
+            <h1 className="mt-4 max-w-full break-words text-3xl font-black leading-tight sm:text-4xl md:text-6xl">
               RRR news, map plan, and Siddipet mandal-village guide.
             </h1>
-            <p className="mt-5 max-w-3xl text-lg leading-8 text-slate-100">
+            <p className="mt-5 max-w-full text-base leading-8 text-slate-100 sm:max-w-3xl sm:text-lg">
               Track the northern corridor around Gajwel, Pragnapur, Jagdevpur, Markook, Rayapol, and Wargal with buyer-friendly notes, village lists, and verification checks.
             </p>
-            <div className="mt-8 flex flex-wrap gap-3">
-              <Link className="btn-primary" to="/properties?mandal=Gajwel">
+            <div className="mt-8 grid gap-3 sm:flex sm:flex-wrap">
+              <Link className="btn-primary w-full sm:w-auto" to="/properties?mandal=Gajwel">
                 Search Gajwel listings
               </Link>
-              <a className="btn-secondary border-white/40 bg-white/10 text-white hover:border-white hover:text-white" href={sources.hmda} rel="noreferrer" target="_blank">
+              <a className="btn-secondary w-full border-white/40 bg-white/10 text-white hover:border-white hover:text-white sm:w-auto" href={sources.hmda} rel="noreferrer" target="_blank">
                 Open HMDA alignment
               </a>
-              <a className="btn-secondary border-white/40 bg-white/10 text-white hover:border-white hover:text-white" href={sources.mapLayer} rel="noreferrer" target="_blank">
+              <a className="btn-secondary w-full border-white/40 bg-white/10 text-white hover:border-white hover:text-white sm:w-auto" href={sources.mapLayer} rel="noreferrer" target="_blank">
                 View map layer
               </a>
             </div>
@@ -391,16 +391,22 @@ export default function RrrRoadPage() {
           </div>
 
           <div className="card overflow-hidden">
-            <div className="grid grid-cols-[1fr_1fr_120px] gap-3 border-b border-slate-100 bg-slate-50 p-4 text-xs font-black uppercase text-slate-500">
+            <div className="hidden grid-cols-[1fr_1fr_120px] gap-3 border-b border-slate-100 bg-slate-50 p-4 text-xs font-black uppercase text-slate-500 sm:grid">
               <span>Mandal</span>
               <span>Village</span>
               <span>Listings</span>
             </div>
             <div className="max-h-[520px] divide-y divide-slate-100 overflow-y-auto">
               {filteredVillageRows.map((item) => (
-                <div className="grid grid-cols-[1fr_1fr_120px] gap-3 p-4 text-sm" key={`${item.mandal}-${item.village}`}>
-                  <span className="font-black text-slate-900">{item.mandal}</span>
-                  <span className="font-semibold text-slate-600">{item.village}</span>
+                <div className="grid gap-3 p-4 text-sm sm:grid-cols-[1fr_1fr_120px]" key={`${item.mandal}-${item.village}`}>
+                  <span className="font-black text-slate-900">
+                    <span className="mr-2 text-xs font-black uppercase text-slate-400 sm:hidden">Mandal</span>
+                    {item.mandal}
+                  </span>
+                  <span className="font-semibold text-slate-600">
+                    <span className="mr-2 text-xs font-black uppercase text-slate-400 sm:hidden">Village</span>
+                    {item.village}
+                  </span>
                   <Link className="font-black text-brand-700 hover:text-brand-900" to={item.listingTo}>
                     Search
                   </Link>

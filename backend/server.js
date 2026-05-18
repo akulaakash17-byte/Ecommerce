@@ -7,6 +7,7 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { env } from "./config/env.js";
 import authRoutes from "./routes/authRoutes.js";
+import auditLogRoutes from "./routes/auditLogRoutes.js";
 import chatbotRoutes from "./routes/chatbotRoutes.js";
 import dashboardRoutes from "./routes/dashboardRoutes.js";
 import followUpRoutes from "./routes/followUpRoutes.js";
@@ -78,6 +79,7 @@ app.use(
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
 app.use("/api/auth", authRoutes);
+app.use("/api/audit-logs", auditLogRoutes);
 app.use("/api/chatbot", chatbotRoutes);
 app.use("/api/dashboard", dashboardRoutes);
 app.use("/api/follow-ups", followUpRoutes);

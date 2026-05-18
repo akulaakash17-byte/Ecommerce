@@ -102,14 +102,14 @@ export default function AdminProperties() {
       </div>
 
       <div className="card overflow-hidden">
-        <div className="hidden grid-cols-[1.4fr_1fr_1fr_1fr_1.2fr] gap-4 border-b border-slate-100 bg-slate-50 p-4 text-sm font-black text-slate-500 md:grid">
+        <div className="hidden grid-cols-[1.4fr_1fr_1fr_1fr_1.2fr] gap-4 border-b border-slate-100 bg-slate-50 p-4 text-sm font-black text-slate-500 xl:grid">
           <span>Property</span><span>Location</span><span>Price</span><span>Status</span><span>Actions</span>
         </div>
         <div className="divide-y divide-slate-100">
           {loading ? (
             <div className="p-5 text-sm font-bold text-slate-500">Loading properties...</div>
           ) : result.data.map((property) => (
-            <div className="grid gap-3 p-4 md:grid-cols-[1.4fr_1fr_1fr_1fr_1.2fr] md:items-center" key={property.id}>
+            <div className="grid gap-3 p-4 xl:grid-cols-[1.4fr_1fr_1fr_1fr_1.2fr] xl:items-center" key={property.id}>
               <div>
                 <p className="font-black">{property.title}</p>
                 <p className="text-sm text-slate-500">{property.property_type}</p>

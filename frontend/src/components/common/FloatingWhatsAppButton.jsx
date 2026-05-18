@@ -18,25 +18,25 @@ function PhoneIcon({ className = "h-6 w-6" }) {
 
 export default function FloatingWhatsAppButton() {
   return (
-    <div className="fixed bottom-5 right-5 z-50 grid gap-3">
+    <div className="fixed bottom-24 right-4 z-40 grid gap-3 sm:bottom-5 sm:right-5">
       <a
         aria-label={`Call us at ${OFFICE_PHONE_HREF}`}
-        className="inline-flex h-14 w-14 items-center justify-center rounded-full bg-slate-950 text-white shadow-soft transition hover:-translate-y-1 hover:bg-brand-700 focus:outline-none focus:ring-4 focus:ring-slate-300"
+        className="inline-flex h-12 w-12 items-center justify-center rounded-full bg-slate-950 text-white shadow-soft transition hover:-translate-y-1 hover:bg-brand-700 focus:outline-none focus:ring-4 focus:ring-slate-300 sm:h-14 sm:w-14"
         href={`tel:${OFFICE_PHONE_HREF}`}
         title="Call office"
       >
-        <PhoneIcon className="h-7 w-7" />
+        <PhoneIcon className="h-6 w-6 sm:h-7 sm:w-7" />
         <span className="sr-only">Call office</span>
       </a>
       <a
         aria-label="Chat with us on WhatsApp"
-        className="inline-flex h-14 w-14 items-center justify-center rounded-full bg-[#25D366] text-white shadow-soft transition hover:-translate-y-1 hover:bg-[#1ebe5d] focus:outline-none focus:ring-4 focus:ring-green-200"
+        className="inline-flex h-12 w-12 items-center justify-center rounded-full bg-[#25D366] text-white shadow-soft transition hover:-translate-y-1 hover:bg-[#1ebe5d] focus:outline-none focus:ring-4 focus:ring-green-200 sm:h-14 sm:w-14"
         href={createWhatsAppUrl(DEFAULT_WHATSAPP_MESSAGE)}
         rel="noreferrer"
         target="_blank"
         title="Chat on WhatsApp"
       >
-        <WhatsAppIcon className="h-7 w-7" />
+        <WhatsAppIcon className="h-6 w-6 sm:h-7 sm:w-7" />
         <span className="sr-only">Chat on WhatsApp</span>
       </a>
     </div>

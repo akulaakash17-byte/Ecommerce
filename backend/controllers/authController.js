@@ -2,6 +2,7 @@ import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import { env } from "../config/env.js";
 import { ApiError } from "../middleware/errorMiddleware.js";
+import { AuditLogModel } from "../models/auditLogModel.js";
 import { UserModel } from "../models/userModel.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
 
@@ -27,6 +28,12 @@ function clearAuthCookie(res) {
     secure: env.isProduction,
     sameSite: env.authCookieSameSite,
     path: "/",
+  });
+}
+
+function recordAudit(entry) {
+  AuditLogModel.create(entry).catch((error) => {
+    console.error("Audit log write failed:", error.message);
   });
 }
 
@@ -65,12 +72,70 @@ export const createUser = asyncHandler(async (req, res) => {
   const password = await bcrypt.hash(req.body.password, 12);
   const user = await UserModel.create({ ...req.body, password });
 
+  recordAudit({
+    actor_id: req.user.id,
+    action: "user.created",
+    entity_type: "user",
+    entity_id: user.id,
+    entity_label: user.email,
+    metadata: { role: user.role },
+  });
+
   res.status(201).json(user);
 });
 
 export const listUsers = asyncHandler(async (req, res) => {
   const users = await UserModel.list();
   res.json(users);
+});
+
+export const listAgents = asyncHandler(async (req, res) => {
+  const agents = await UserModel.listAgents();
+  res.json(agents);
+});
+
+export const changePassword = asyncHandler(async (req, res) => {
+  const { currentPassword, newPassword } = req.body;
+  const user = await UserModel.findWithPasswordById(req.user.id);
+
+  if (!user || !(await bcrypt.compare(currentPassword, user.password))) {
+    throw new ApiError(401, "Current password is incorrect.");
+  }
+
+  const password = await bcrypt.hash(newPassword, 12);
+  await UserModel.updatePasswordById(req.user.id, password);
+
+  recordAudit({
+    actor_id: req.user.id,
+    action: "user.password_changed",
+    entity_type: "user",
+    entity_id: req.user.id,
+    entity_label: req.user.email,
+  });
+
+  res.json({ message: "Password changed." });
+});
+
+export const resetUserPassword = asyncHandler(async (req, res) => {
+  const user = await UserModel.findById(req.params.id);
+
+  if (!user) {
+    throw new ApiError(404, "User not found.");
+  }
+
+  const password = await bcrypt.hash(req.body.password, 12);
+  const updatedUser = await UserModel.updatePasswordById(req.params.id, password);
+
+  recordAudit({
+    actor_id: req.user.id,
+    action: "user.password_reset",
+    entity_type: "user",
+    entity_id: updatedUser.id,
+    entity_label: updatedUser.email,
+    metadata: { resetBy: req.user.email },
+  });
+
+  res.json({ message: "Password reset.", user: updatedUser });
 });
 
 export const logout = asyncHandler(async (req, res) => {

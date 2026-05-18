@@ -4,6 +4,7 @@ import ErrorMessage from "../../components/common/ErrorMessage";
 import Pagination from "../../components/common/Pagination";
 import SearchSelect from "../../components/forms/SearchSelect";
 import { useAuth } from "../../context/AuthContext";
+import { authService } from "../../services/authService";
 import { inquiryService } from "../../services/inquiryService";
 import { notificationService } from "../../services/notificationService";
 import { formatDate } from "../../utils/formatters";
@@ -30,9 +31,10 @@ function StatusBadge({ status }) {
 export default function AdminInquiries() {
   const { user } = useAuth();
   const isAdmin = user?.role === "admin";
-  const [filters, setFilters] = useState({ q: "", status: "", page: 1 });
+  const [filters, setFilters] = useState({ q: "", status: "", assigned_to: "", page: 1 });
   const [result, setResult] = useState({ data: [], meta: null });
   const [logs, setLogs] = useState({ data: [], meta: null });
+  const [agents, setAgents] = useState([]);
   const [logPage, setLogPage] = useState(1);
   const [statusNotes, setStatusNotes] = useState({});
   const [loading, setLoading] = useState(true);
@@ -60,6 +62,15 @@ export default function AdminInquiries() {
       .finally(() => setLogsLoading(false));
   }, [isAdmin, logPage]);
 
+  const loadAgents = useCallback(() => {
+    if (!isAdmin) return;
+
+    authService
+      .listAgents()
+      .then(setAgents)
+      .catch((requestError) => setError(requestError.message));
+  }, [isAdmin]);
+
   useEffect(() => {
     loadInquiries();
   }, [loadInquiries]);
@@ -67,6 +78,10 @@ export default function AdminInquiries() {
   useEffect(() => {
     loadLogs();
   }, [loadLogs]);
+
+  useEffect(() => {
+    loadAgents();
+  }, [loadAgents]);
 
   const updateStatus = async (inquiry, status) => {
     setError("");
@@ -103,6 +118,24 @@ export default function AdminInquiries() {
     }
   };
 
+  const assignInquiry = async (inquiry, assignedTo) => {
+    setError("");
+
+    try {
+      await inquiryService.assign(inquiry.id, { assigned_to: assignedTo || "" });
+      loadInquiries();
+      loadLogs();
+    } catch (requestError) {
+      setError(requestError.message);
+    }
+  };
+
+  const agentOptions = agents.map((agent) => ({
+    label: `${agent.name} (${agent.email})`,
+    value: String(agent.id),
+  }));
+  const assignmentFilterOptions = [{ label: "Unassigned", value: "unassigned" }, ...agentOptions];
+
   return (
     <div>
       <div className="mb-6">
@@ -114,7 +147,7 @@ export default function AdminInquiries() {
       </div>
       <ErrorMessage message={error} />
 
-      <div className="card mb-5 grid gap-3 p-4 md:grid-cols-[1fr_220px]">
+      <div className="card mb-5 grid gap-3 p-4 md:grid-cols-[1fr_220px_260px]">
         <input
           className="field"
           onChange={(event) => setFilters((current) => ({ ...current, q: event.target.value, page: 1 }))}
@@ -128,6 +161,15 @@ export default function AdminInquiries() {
           placeholder="All statuses"
           value={filters.status}
         />
+        {isAdmin ? (
+          <SearchSelect
+            isClearable
+            onChange={(value) => setFilters((current) => ({ ...current, assigned_to: value, page: 1 }))}
+            options={assignmentFilterOptions}
+            placeholder="All assignments"
+            value={filters.assigned_to}
+          />
+        ) : null}
       </div>
 
       <div className="card overflow-hidden">
@@ -172,9 +214,22 @@ export default function AdminInquiries() {
                       <p className="mt-1 text-xs font-semibold text-slate-400">
                         Updated {formatDate(inquiry.updated_at)}
                       </p>
+                      <p className="mt-3 text-xs font-black uppercase text-slate-400">Assigned</p>
+                      <p className="mt-1 text-sm font-bold text-slate-700">
+                        {inquiry.assigned_agent_name || "Unassigned"}
+                      </p>
                     </td>
                     <td className="px-5 py-4">
                       <div className="grid gap-2">
+                        {isAdmin ? (
+                          <SearchSelect
+                            isClearable
+                            onChange={(value) => assignInquiry(inquiry, value)}
+                            options={agentOptions}
+                            placeholder="Assign agent"
+                            value={inquiry.assigned_to ? String(inquiry.assigned_to) : ""}
+                          />
+                        ) : null}
                         <textarea
                           className="field min-h-20"
                           onChange={(event) => setStatusNotes((current) => ({ ...current, [inquiry.id]: event.target.value }))}

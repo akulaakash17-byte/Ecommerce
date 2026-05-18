@@ -152,11 +152,11 @@ export default function ChatbotWidget() {
 
       <button
         aria-label="Open FAQ chatbot"
-        className="inline-flex h-14 w-14 items-center justify-center rounded-full bg-brand-700 text-white shadow-soft ring-4 ring-white transition hover:-translate-y-1 hover:bg-brand-600 focus:outline-none focus:ring-brand-100"
+        className="inline-flex h-12 w-12 items-center justify-center rounded-full bg-brand-700 text-white shadow-soft ring-4 ring-white transition hover:-translate-y-1 hover:bg-brand-600 focus:outline-none focus:ring-brand-100 sm:h-14 sm:w-14"
         onClick={toggleOpen}
         type="button"
       >
-        <ChatIcon className="h-7 w-7" />
+        <ChatIcon className="h-6 w-6 sm:h-7 sm:w-7" />
       </button>
     </div>
   );

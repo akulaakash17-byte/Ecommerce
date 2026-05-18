@@ -2,6 +2,7 @@ import { Navigate, Route, Routes } from "react-router-dom";
 import AdminLayout from "./layouts/AdminLayout";
 import PublicLayout from "./layouts/PublicLayout";
 import AdminInquiries from "./pages/admin/AdminInquiries";
+import AdminAuditLogs from "./pages/admin/AdminAuditLogs";
 import AdminFollowUps from "./pages/admin/AdminFollowUps";
 import AdminOverview from "./pages/admin/AdminOverview";
 import AdminProperties from "./pages/admin/AdminProperties";
@@ -40,6 +41,7 @@ function App() {
           <Route path="inquiries" element={<AdminInquiries />} />
           <Route path="follow-ups" element={<AdminFollowUps />} />
           <Route path="users" element={<AdminUsers />} />
+          <Route path="audit-logs" element={<AdminAuditLogs />} />
         </Route>
       </Route>
 

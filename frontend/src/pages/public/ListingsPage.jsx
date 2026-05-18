@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import EmptyState from "../../components/common/EmptyState";
 import ErrorMessage from "../../components/common/ErrorMessage";
 import { PropertyCardSkeleton } from "../../components/common/LoadingSkeleton";
@@ -19,9 +20,11 @@ const emptyFilters = {
 };
 
 export default function ListingsPage() {
+  const { t } = useTranslation();
+
   useDocumentMeta({
-    title: "Property Listings | Siddipet Real Estate",
-    description: "Search Siddipet district properties by mandal, village, type, and price. Contact the office for site visits and offline deal support.",
+    title: t("listings.metaTitle"),
+    description: t("listings.metaDescription"),
     canonicalPath: "/properties",
   });
 
@@ -96,14 +99,14 @@ export default function ListingsPage() {
         <div className="container-page py-10">
           <div className="flex flex-col justify-between gap-4 md:flex-row md:items-end">
             <div>
-              <p className="eyebrow">Listings</p>
-              <h1 className="section-title mt-2">Properties in Siddipet district</h1>
+              <p className="eyebrow">{t("listings.eyebrow")}</p>
+              <h1 className="section-title mt-2">{t("listings.title")}</h1>
               <p className="mt-3 max-w-2xl text-sm leading-6 text-slate-600">
-                Filter by mandal, village, property type, and price. Contact happens offline through call, WhatsApp, or inquiry form.
+                {t("listings.intro")}
               </p>
             </div>
             <div className="rounded-lg border border-slate-200 bg-white px-4 py-3 shadow-sm">
-              <p className="text-xs font-black uppercase text-slate-500">Available results</p>
+              <p className="text-xs font-black uppercase text-slate-500">{t("listings.availableResults")}</p>
               <p className="mt-1 text-2xl font-black text-slate-950">{result.meta?.total ?? 0}</p>
             </div>
           </div>
@@ -124,7 +127,7 @@ export default function ListingsPage() {
 
         {!loading && !result.data.length ? (
           <div className="mt-7">
-            <EmptyState title="No matching properties" message="Try changing the mandal, village, type, or price filters." />
+            <EmptyState title={t("listings.noMatchingTitle")} message={t("listings.noMatchingMessage")} />
           </div>
         ) : null}
 

@@ -13,6 +13,11 @@ export const UserModel = {
     return result.rows[0] || null;
   },
 
+  async findWithPasswordById(id) {
+    const result = await query("SELECT * FROM users WHERE id = $1", [id]);
+    return result.rows[0] || null;
+  },
+
   async create({ name, phone, email, password, role = "agent" }) {
     const result = await query(
       `INSERT INTO users (name, username, phone, email, password, role)
@@ -45,8 +50,18 @@ export const UserModel = {
     return result.rows[0] || null;
   },
 
+  async updatePasswordById(id, password) {
+    const result = await query(`UPDATE users SET password = $1 WHERE id = $2 RETURNING ${userColumns}`, [password, id]);
+    return result.rows[0] || null;
+  },
+
   async list() {
     const result = await query(`SELECT ${userColumns} FROM users ORDER BY created_at DESC`);
+    return result.rows;
+  },
+
+  async listAgents() {
+    const result = await query(`SELECT ${userColumns} FROM users WHERE role = 'agent' ORDER BY name ASC, email ASC`);
     return result.rows;
   },
 };

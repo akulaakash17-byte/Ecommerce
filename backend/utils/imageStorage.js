@@ -1,6 +1,11 @@
 import fs from "node:fs/promises";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
 import cloudinary, { isCloudinaryConfigured } from "../config/cloudinary.js";
 import { env } from "../config/env.js";
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+const uploadDir = path.resolve(__dirname, "../uploads");
 
 export async function storeUploadedImages(files = []) {
   if (!files.length) {
@@ -44,4 +49,52 @@ export async function storeUploadedVideo(files = []) {
 
   await fs.unlink(file.path).catch(() => {});
   return result.secure_url;
+}
+
+function getLocalUploadPath(mediaUrl) {
+  if (!String(mediaUrl || "").startsWith("/uploads/")) {
+    return "";
+  }
+
+  const fileName = path.basename(mediaUrl);
+  return path.join(uploadDir, fileName);
+}
+
+function getCloudinaryPublicId(mediaUrl) {
+  if (!mediaUrl || !mediaUrl.includes("res.cloudinary.com") || !mediaUrl.includes("/upload/")) {
+    return "";
+  }
+
+  try {
+    const url = new URL(mediaUrl);
+    const [, afterUpload = ""] = url.pathname.split("/upload/");
+    const parts = afterUpload.split("/").filter(Boolean);
+    const withoutVersion = parts[0]?.startsWith("v") && /^\d+$/.test(parts[0].slice(1)) ? parts.slice(1) : parts;
+    const publicPath = withoutVersion.join("/");
+    return publicPath.replace(/\.[^/.]+$/, "");
+  } catch {
+    return "";
+  }
+}
+
+export async function deleteStoredMedia(mediaUrl, resourceType = "image") {
+  const localPath = getLocalUploadPath(mediaUrl);
+
+  if (localPath) {
+    await fs.unlink(localPath).catch(() => {});
+    return;
+  }
+
+  const publicId = getCloudinaryPublicId(mediaUrl);
+
+  if (publicId && isCloudinaryConfigured) {
+    await cloudinary.uploader.destroy(publicId, {
+      invalidate: true,
+      resource_type: resourceType,
+    }).catch(() => {});
+  }
+}
+
+export async function deleteStoredMediaMany(mediaUrls = [], resourceType = "image") {
+  await Promise.all(mediaUrls.filter(Boolean).map((mediaUrl) => deleteStoredMedia(mediaUrl, resourceType)));
 }

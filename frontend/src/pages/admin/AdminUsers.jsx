@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState } from "react";
 import EmptyState from "../../components/common/EmptyState";
 import ErrorMessage from "../../components/common/ErrorMessage";
 import SearchSelect from "../../components/forms/SearchSelect";
+import { useAuth } from "../../context/AuthContext";
 import { authService } from "../../services/authService";
 import { formatDate } from "../../utils/formatters";
 
@@ -14,10 +15,15 @@ const initialForm = {
 };
 
 export default function AdminUsers() {
+  const { user } = useAuth();
   const [users, setUsers] = useState([]);
   const [form, setForm] = useState(initialForm);
+  const [ownPassword, setOwnPassword] = useState({ currentPassword: "", newPassword: "" });
+  const [resetPasswords, setResetPasswords] = useState({});
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [passwordSaving, setPasswordSaving] = useState(false);
+  const [resetSaving, setResetSaving] = useState({});
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
 
@@ -39,6 +45,14 @@ export default function AdminUsers() {
     setForm((current) => ({ ...current, [key]: value }));
   };
 
+  const updateOwnPassword = (key, value) => {
+    setOwnPassword((current) => ({ ...current, [key]: value }));
+  };
+
+  const updateResetPassword = (id, value) => {
+    setResetPasswords((current) => ({ ...current, [id]: value }));
+  };
+
   const submit = async (event) => {
     event.preventDefault();
     setSaving(true);
@@ -54,6 +68,46 @@ export default function AdminUsers() {
       setError(requestError.message);
     } finally {
       setSaving(false);
+    }
+  };
+
+  const changeOwnPassword = async (event) => {
+    event.preventDefault();
+    setPasswordSaving(true);
+    setError("");
+    setSuccess("");
+
+    try {
+      await authService.changePassword(ownPassword);
+      setOwnPassword({ currentPassword: "", newPassword: "" });
+      setSuccess("Your password was changed.");
+    } catch (requestError) {
+      setError(requestError.message);
+    } finally {
+      setPasswordSaving(false);
+    }
+  };
+
+  const resetPassword = async (item) => {
+    const password = resetPasswords[item.id] || "";
+
+    if (password.length < 8) {
+      setError("Reset password must be at least 8 characters.");
+      return;
+    }
+
+    setResetSaving((current) => ({ ...current, [item.id]: true }));
+    setError("");
+    setSuccess("");
+
+    try {
+      await authService.resetPassword(item.id, { password });
+      updateResetPassword(item.id, "");
+      setSuccess(`Password reset for ${item.email}.`);
+    } catch (requestError) {
+      setError(requestError.message);
+    } finally {
+      setResetSaving((current) => ({ ...current, [item.id]: false }));
     }
   };
 
@@ -73,6 +127,43 @@ export default function AdminUsers() {
           {success}
         </div>
       ) : null}
+
+      <section className="card mb-6 p-5">
+        <div className="mb-4">
+          <h2 className="text-xl font-black">Change my password</h2>
+          <p className="mt-1 text-sm font-semibold text-slate-500">{user?.email}</p>
+        </div>
+        <form className="grid gap-4 md:grid-cols-[1fr_1fr_auto]" onSubmit={changeOwnPassword}>
+          <div>
+            <label className="label" htmlFor="currentPassword">Current password</label>
+            <input
+              className="field"
+              id="currentPassword"
+              onChange={(event) => updateOwnPassword("currentPassword", event.target.value)}
+              required
+              type="password"
+              value={ownPassword.currentPassword}
+            />
+          </div>
+          <div>
+            <label className="label" htmlFor="newPassword">New password</label>
+            <input
+              className="field"
+              id="newPassword"
+              minLength="8"
+              onChange={(event) => updateOwnPassword("newPassword", event.target.value)}
+              required
+              type="password"
+              value={ownPassword.newPassword}
+            />
+          </div>
+          <div className="flex items-end">
+            <button className="btn-primary w-full md:w-auto" disabled={passwordSaving} type="submit">
+              {passwordSaving ? "Changing..." : "Change password"}
+            </button>
+          </div>
+        </form>
+      </section>
 
       <form className="card mb-6 grid gap-4 p-5 md:grid-cols-2 xl:grid-cols-5" onSubmit={submit}>
         <div>
@@ -103,14 +194,14 @@ export default function AdminUsers() {
       </form>
 
       <div className="card overflow-hidden">
-        <div className="hidden grid-cols-[1fr_1fr_120px_140px] gap-4 border-b border-slate-100 bg-slate-50 p-4 text-sm font-black text-slate-500 md:grid">
-          <span>User</span><span>Contact</span><span>Role</span><span>Created</span>
+        <div className="hidden grid-cols-[1fr_1fr_110px_130px_240px] gap-4 border-b border-slate-100 bg-slate-50 p-4 text-sm font-black text-slate-500 xl:grid">
+          <span>User</span><span>Contact</span><span>Role</span><span>Created</span><span>Reset password</span>
         </div>
         <div className="divide-y divide-slate-100">
           {loading ? (
             <div className="p-5 text-sm font-bold text-slate-500">Loading users...</div>
           ) : users.map((item) => (
-            <div className="grid gap-3 p-4 md:grid-cols-[1fr_1fr_120px_140px] md:items-center" key={item.id}>
+            <div className="grid gap-3 p-4 xl:grid-cols-[1fr_1fr_110px_130px_240px] xl:items-center" key={item.id}>
               <div>
                 <p className="font-black">{item.name}</p>
                 <p className="text-sm text-slate-500">{item.email}</p>
@@ -118,6 +209,24 @@ export default function AdminUsers() {
               <p className="text-sm font-semibold text-slate-600">{item.phone || "No phone"}</p>
               <p className="text-sm font-black capitalize text-slate-700">{item.role}</p>
               <p className="text-sm text-slate-500">{formatDate(item.created_at)}</p>
+              <div className="flex gap-2">
+                <input
+                  className="field min-w-0 py-2"
+                  minLength="8"
+                  onChange={(event) => updateResetPassword(item.id, event.target.value)}
+                  placeholder="New password"
+                  type="password"
+                  value={resetPasswords[item.id] || ""}
+                />
+                <button
+                  className="btn-secondary px-3 py-2"
+                  disabled={resetSaving[item.id]}
+                  onClick={() => resetPassword(item)}
+                  type="button"
+                >
+                  {resetSaving[item.id] ? "Saving..." : "Reset"}
+                </button>
+              </div>
             </div>
           ))}
         </div>
