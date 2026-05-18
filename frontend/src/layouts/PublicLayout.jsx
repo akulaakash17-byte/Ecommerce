@@ -49,8 +49,10 @@ export default function PublicLayout() {
             ))}
           </div>
           <div className="flex shrink-0 items-center gap-1.5 sm:gap-3 md:ml-2">
-            <LanguageTranslator />
-            <NavLink className="btn-primary whitespace-nowrap px-2.5 py-2 text-xs sm:px-4 sm:py-2.5 sm:text-sm" to="/login">{t("common.agentLogin")}</NavLink>
+            <div className="hidden md:block">
+              <LanguageTranslator />
+            </div>
+            <NavLink className="btn-primary hidden whitespace-nowrap px-3 py-2 sm:px-4 sm:py-2.5 md:inline-flex" to="/login">{t("common.agentLogin")}</NavLink>
             <button
               aria-expanded={menuOpen}
               aria-label="Open navigation"
@@ -99,6 +101,13 @@ export default function PublicLayout() {
                 {t(item.labelKey)}
               </NavLink>
             ))}
+          </div>
+          <div className="mt-6 border-t border-slate-100 pt-5">
+            <p className="mb-2 text-xs font-black uppercase text-slate-500">{t("translator.label")}</p>
+            <LanguageTranslator />
+            <NavLink className="btn-primary mt-4 w-full py-3" onClick={closeMenu} to="/login">
+              {t("common.agentLogin")}
+            </NavLink>
           </div>
         </aside>
       </div>
