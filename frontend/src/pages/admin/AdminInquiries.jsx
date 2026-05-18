@@ -82,6 +82,27 @@ export default function AdminInquiries() {
     }
   };
 
+  const deleteInquiry = async (inquiry) => {
+    const confirmed = window.confirm(`Delete inquiry #${inquiry.id} from ${inquiry.name}? This cannot be undone.`);
+
+    if (!confirmed) return;
+
+    setError("");
+
+    try {
+      await inquiryService.remove(inquiry.id);
+      setStatusNotes((current) => {
+        const next = { ...current };
+        delete next[inquiry.id];
+        return next;
+      });
+      loadInquiries();
+      loadLogs();
+    } catch (requestError) {
+      setError(requestError.message);
+    }
+  };
+
   return (
     <div>
       <div className="mb-6">
@@ -171,6 +192,15 @@ export default function AdminInquiries() {
                               {status}
                             </button>
                           ))}
+                          {isAdmin ? (
+                            <button
+                              className="rounded-md border border-red-200 bg-red-50 px-3 py-2 text-sm font-black text-red-700 transition hover:-translate-y-0.5 hover:bg-red-100"
+                              onClick={() => deleteInquiry(inquiry)}
+                              type="button"
+                            >
+                              Delete
+                            </button>
+                          ) : null}
                         </div>
                       </div>
                     </td>

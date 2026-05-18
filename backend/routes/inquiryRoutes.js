@@ -1,5 +1,5 @@
 import express from "express";
-import { createInquiry, listInquiries, updateInquiryStatus } from "../controllers/inquiryController.js";
+import { createInquiry, deleteInquiry, listInquiries, updateInquiryStatus } from "../controllers/inquiryController.js";
 import { authorizeRoles, protect } from "../middleware/authMiddleware.js";
 import { idParamRule, inquiryRules, inquiryStatusRules } from "../middleware/validators.js";
 import { validateRequest } from "../middleware/validateRequest.js";
@@ -17,5 +17,6 @@ router.patch(
   validateRequest,
   updateInquiryStatus
 );
+router.delete("/:id", protect, authorizeRoles("admin"), idParamRule, validateRequest, deleteInquiry);
 
 export default router;

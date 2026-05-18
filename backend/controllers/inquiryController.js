@@ -25,3 +25,13 @@ export const updateInquiryStatus = asyncHandler(async (req, res) => {
 
   res.json(inquiry);
 });
+
+export const deleteInquiry = asyncHandler(async (req, res) => {
+  const inquiry = await InquiryModel.remove(req.params.id);
+
+  if (!inquiry) {
+    throw new ApiError(404, "Inquiry not found.");
+  }
+
+  res.json({ message: "Inquiry deleted.", inquiry });
+});

@@ -72,4 +72,14 @@ export const InquiryModel = {
     );
     return result.rows[0] || null;
   },
+
+  async remove(id) {
+    const result = await query(
+      `DELETE FROM inquiries
+       WHERE id = $1
+       RETURNING id, property_id, name, phone, message, status, status_note, created_at, updated_at`,
+      [id]
+    );
+    return result.rows[0] || null;
+  },
 };
