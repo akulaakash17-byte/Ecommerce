@@ -20,28 +20,20 @@ const navItems = [
 export default function PublicLayout() {
   const { t } = useTranslation();
   const [menuOpen, setMenuOpen] = useState(false);
+  const closeMenu = () => setMenuOpen(false);
 
   return (
     <div className="min-h-screen text-ink">
       <header className="sticky top-0 z-40 border-b border-slate-200/80 bg-white/90 shadow-sm backdrop-blur-xl">
-        <nav className="container-page flex min-h-16 flex-wrap items-center justify-between gap-3 py-2">
-          <NavLink className="flex min-w-0 flex-1 items-center gap-3 text-lg font-black text-slate-950 md:flex-none" to="/">
-            <img alt="" className="h-10 w-10 rounded-md shadow-sm" src="/favicon.svg" />
-            <span className="min-w-0">
-              {t("common.brand")}
-              <span className="block text-xs font-extrabold uppercase text-slate-500">{t("common.officeShort")}</span>
+        <nav className="container-page flex min-h-16 items-center gap-2 py-2">
+          <NavLink className="flex min-w-0 flex-1 items-center gap-2 text-base font-black text-slate-950 md:flex-none md:gap-3 md:text-lg" onClick={closeMenu} to="/">
+            <img alt="" className="h-10 w-10 shrink-0 rounded-md shadow-sm" src="/favicon.svg" />
+            <span className="min-w-0 leading-tight">
+              <span className="block truncate">{t("common.brand")}</span>
+              <span className="block truncate text-[11px] font-extrabold uppercase text-slate-500 md:text-xs">{t("common.officeShort")}</span>
             </span>
           </NavLink>
-          <button
-            aria-expanded={menuOpen}
-            aria-label="Toggle navigation"
-            className="btn-secondary ml-auto px-3 py-2 md:hidden"
-            onClick={() => setMenuOpen((current) => !current)}
-            type="button"
-          >
-            Menu
-          </button>
-          <div className={`${menuOpen ? "grid" : "hidden"} order-3 w-full grid-cols-2 gap-2 pb-1 md:order-none md:flex md:w-auto md:items-center md:gap-2 md:overflow-visible md:pb-0`}>
+          <div className="hidden items-center gap-2 md:flex md:ml-auto">
             {navItems.map((item) => (
               <NavLink
                 className={({ isActive }) =>
@@ -50,19 +42,66 @@ export default function PublicLayout() {
                   }`
                 }
                 key={item.to}
-                onClick={() => setMenuOpen(false)}
                 to={item.to}
               >
                 {t(item.labelKey)}
               </NavLink>
             ))}
           </div>
-          <div className="flex shrink-0 items-center gap-2 sm:gap-3 md:ml-auto">
+          <div className="flex shrink-0 items-center gap-1.5 sm:gap-3 md:ml-2">
             <LanguageTranslator />
-            <NavLink className="btn-primary whitespace-nowrap px-3 py-2 sm:px-4 sm:py-2.5" to="/login">{t("common.agentLogin")}</NavLink>
+            <NavLink className="btn-primary whitespace-nowrap px-2.5 py-2 text-xs sm:px-4 sm:py-2.5 sm:text-sm" to="/login">{t("common.agentLogin")}</NavLink>
+            <button
+              aria-expanded={menuOpen}
+              aria-label="Open navigation"
+              className="btn-secondary px-3 py-2 md:hidden"
+              onClick={() => setMenuOpen(true)}
+              type="button"
+            >
+              Menu
+            </button>
           </div>
         </nav>
       </header>
+
+      <div className={`fixed inset-0 z-50 md:hidden ${menuOpen ? "" : "pointer-events-none"}`} aria-hidden={!menuOpen}>
+        <button
+          aria-label="Close navigation"
+          className={`absolute inset-0 bg-slate-950/45 transition-opacity ${menuOpen ? "opacity-100" : "opacity-0"}`}
+          onClick={closeMenu}
+          type="button"
+        />
+        <aside
+          className={`absolute right-0 top-0 h-full w-[min(82vw,320px)] overflow-y-auto bg-white p-5 shadow-soft transition-transform duration-300 ${menuOpen ? "translate-x-0" : "translate-x-full"}`}
+        >
+          <div className="flex items-start justify-between gap-4">
+            <div className="flex min-w-0 items-center gap-3">
+              <img alt="" className="h-11 w-11 rounded-md shadow-sm" src="/favicon.svg" />
+              <div className="min-w-0">
+                <p className="truncate text-lg font-black text-slate-950">{t("common.brand")}</p>
+                <p className="text-xs font-extrabold uppercase text-slate-500">{t("common.officeShort")}</p>
+              </div>
+            </div>
+            <button className="btn-secondary px-3 py-2" onClick={closeMenu} type="button">Close</button>
+          </div>
+          <div className="mt-6 grid gap-2">
+            {navItems.map((item) => (
+              <NavLink
+                className={({ isActive }) =>
+                  `rounded-md px-4 py-3 text-base font-extrabold transition ${
+                    isActive ? "bg-brand-50 text-brand-700" : "text-slate-700 hover:bg-slate-100 hover:text-slate-950"
+                  }`
+                }
+                key={item.to}
+                onClick={closeMenu}
+                to={item.to}
+              >
+                {t(item.labelKey)}
+              </NavLink>
+            ))}
+          </div>
+        </aside>
+      </div>
 
       <Outlet />
       <ChatbotWidget />
