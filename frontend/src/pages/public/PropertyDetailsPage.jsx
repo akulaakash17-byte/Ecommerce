@@ -6,7 +6,7 @@ import InquiryForm from "../../components/forms/InquiryForm";
 import { useDocumentMeta } from "../../hooks/useDocumentMeta";
 import { propertyService } from "../../services/propertyService";
 import { formatPrice } from "../../utils/formatters";
-import { FALLBACK_PROPERTY_IMAGE, resolveImage, resolveMediaUrl } from "../../utils/images";
+import { FALLBACK_PROPERTY_IMAGE, resolveImage } from "../../utils/images";
 import { createWhatsAppUrl } from "../../utils/whatsapp";
 
 export default function PropertyDetailsPage() {
@@ -53,7 +53,7 @@ export default function PropertyDetailsPage() {
       ...imageItems,
       {
         type: "video",
-        src: resolveMediaUrl(property.video_url),
+        src: property.video_url,
         label: "Property video",
       },
     ];
