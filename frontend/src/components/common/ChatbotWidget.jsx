@@ -21,7 +21,9 @@ export default function ChatbotWidget() {
     if (!trimmed || loading) return;
 
     const userMessage = { role: "user", text: trimmed };
-    const currentHistory = messages.filter((message) => ["user", "assistant"].includes(message.role));
+    const currentHistory = messages
+      .filter((message) => ["user", "assistant"].includes(message.role))
+      .slice(-8);
 
     setMessages((current) => [...current, userMessage]);
     setInput("");
