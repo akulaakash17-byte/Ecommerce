@@ -1,271 +1,299 @@
 # Siddipet Real Estate Web
 
-A full-stack real estate discovery and listing-management app for Siddipet district, Telangana. It is designed for a real office workflow in Pragnapur: buyers discover properties online, then communication and deals happen offline through WhatsApp, phone calls, and inquiry forms.
+A full-stack real estate listing and inquiry platform for Siddipet district, Telangana. The app helps visitors browse land and property listings, save properties locally, contact the office through inquiry forms or WhatsApp, and lets admins manage listings, inquiries, follow-ups, users, audit logs, and dashboard metrics.
 
-There is no checkout, booking engine, online buying/selling, or payment gateway.
+This project does not include checkout, online booking, online payments, or in-app property purchases.
 
-## Stack
+## Tech Stack
 
-- Frontend: React, Vite, JavaScript, Tailwind CSS, React Router DOM, Axios
-- Backend: Node.js, Express.js, JWT auth, Multer uploads
-- Database: PostgreSQL
-- Image storage: Cloudinary when configured, local `/uploads` fallback in development
+- Frontend: React, Vite, JavaScript, Tailwind CSS, React Router, Axios
+- Backend: Node.js, Express, PostgreSQL, JWT auth, HTTP-only auth cookie
+- Uploads: Cloudinary in production when configured, local `backend/uploads` fallback in development
+- Notifications: Optional WhatsApp Cloud API, Telegram Bot API, and SMTP email
+- AI chatbot: Optional Groq-backed chatbot with frontend FAQ fallback
+
+## Features
+
+- Public property discovery pages with search and filters
+- Property details pages with image/video support
+- Saved properties stored in the browser
+- Inquiry form and contact/WhatsApp actions
+- Location data for mandals and villages
+- Admin login and protected dashboard
+- Listing create, update, publish/status, and delete workflows
+- Inquiry management and follow-up tracking
+- Admin user management
+- Audit logs and notification logs
+- Database setup, backup, restore, and admin seed scripts
 
 ## Project Structure
 
 ```text
-frontend/src/
-├── assets/
-├── components/
-├── context/
-├── data/
-├── hooks/
-├── layouts/
-├── pages/
-├── routes/
-├── services/
-└── utils/
-
-backend/
-├── config/
-├── controllers/
-├── data/
-├── middleware/
-├── models/
-├── routes/
-├── scripts/
-├── uploads/
-├── utils/
-├── schema.sql
-└── server.js
+.
+├── frontend/src
+│   ├── components
+│   ├── context
+│   ├── data
+│   ├── hooks
+│   ├── layouts
+│   ├── pages
+│   ├── routes
+│   ├── services
+│   └── utils
+├── backend
+│   ├── config
+│   ├── controllers
+│   ├── data
+│   ├── middleware
+│   ├── migrations
+│   ├── models
+│   ├── routes
+│   ├── scripts
+│   ├── services
+│   ├── uploads
+│   ├── schema.sql
+│   └── server.js
+├── public
+├── scripts
+├── index.html
+├── package.json
+└── vite.config.js
 ```
+
+## Prerequisites
+
+- Node.js 20 or newer recommended
+- npm
+- PostgreSQL database
+- Optional Cloudinary account for production media storage
+- Optional Groq, WhatsApp Cloud API, Telegram, or SMTP credentials for chatbot and notifications
 
 ## Setup
 
-Install frontend and backend dependencies:
+Install dependencies for the frontend and backend:
 
 ```bash
 npm install
 npm --prefix backend install
 ```
 
-Create backend environment:
+Create the backend environment file:
 
 ```bash
 cp backend/.env.example backend/.env
 ```
 
-Update `backend/.env` with PostgreSQL and Cloudinary credentials. Cloudinary fields can stay empty for local development; uploads will be saved under `backend/uploads`.
+Edit `backend/.env` and set at least:
 
-Prepare database tables:
+```env
+PORT=5050
+CLIENT_URL=http://127.0.0.1:5173
+CLIENT_URLS=http://127.0.0.1:5173
+
+DB_HOST=127.0.0.1
+DB_PORT=5432
+DB_NAME=postgres
+DB_USER=postgres
+DB_PASSWORD=your_database_password
+DB_SSL=false
+
+JWT_SECRET=replace_with_a_long_random_secret_at_least_32_chars
+
+ADMIN_NAME=Admin
+ADMIN_PHONE=9999999999
+ADMIN_EMAIL=admin@example.com
+ADMIN_PASSWORD=change_this_password
+```
+
+If using a hosted PostgreSQL database, set `DATABASE_URL`; it takes priority over the individual `DB_HOST`, `DB_NAME`, `DB_USER`, and password fields.
+
+Create database tables and run migrations:
 
 ```bash
 npm --prefix backend run db:setup
 ```
 
-`db:setup` creates the base schema and applies SQL migrations from `backend/migrations`.
-
-Create the first admin user:
+Create the first admin user from the `ADMIN_*` values in `backend/.env`:
 
 ```bash
 npm --prefix backend run seed:admin
 ```
 
-Run frontend and backend together:
+Start the frontend and backend together:
 
 ```bash
 npm run dev
 ```
 
-Frontend: `http://127.0.0.1:5173`
+Local URLs:
 
-Backend: `http://127.0.0.1:5050`
+- Frontend: `http://127.0.0.1:5173`
+- Backend API: `http://127.0.0.1:5050`
+- Health check: `http://127.0.0.1:5050/api/health`
 
-## Default Local Admin
+## Available Scripts
 
-The local `.env` can define:
-
-- `ADMIN_EMAIL`
-- `ADMIN_PASSWORD`
-
-Use those values to log in at `/login`.
-
-Current office admin defaults:
-
-- Name: `Srinivas`
-- Phone: `9849972116`
-- Email: `akulasrinu62@gmail.com`
-
-Additional public contact details:
-
-- Phone: `8897422872`
-- Email: `akulaakash17@gmail.com`
-
-## AI Chatbot
-
-The public chatbot can use Groq through the backend API. Keep Groq credentials only in `backend/.env`; do not put them in frontend code.
-
-- `GROQ_CHATBOT_ENABLED=true`
-- `GROQ_API_KEY`
-- `GROQ_MODEL=llama-3.1-8b-instant`
-
-The backend calls Groq's OpenAI-compatible chat completions endpoint and the frontend falls back to local FAQ matching if the AI service is unavailable.
-
-## Inquiry Notifications
-
-Inquiry submission can automatically notify the office through WhatsApp, Telegram, and email.
-
-For WhatsApp Cloud API, set these in `backend/.env`:
-
-- `INQUIRY_NOTIFICATION_PHONES=918897422872,919347332792`
-- `WHATSAPP_NOTIFICATION_ENABLED=true`
-- `WHATSAPP_API_VERSION=v25.0`
-- `WHATSAPP_PHONE_NUMBER_ID`
-- `WHATSAPP_ACCESS_TOKEN`
-
-For Telegram Bot API notifications, create a bot through BotFather, start the bot from the destination account, then set:
-
-- `TELEGRAM_NOTIFICATION_ENABLED=true`
-- `TELEGRAM_BOT_TOKEN`
-- `TELEGRAM_CHAT_ID`
-
-For email notifications, set these in `backend/.env`:
-
-- `EMAIL_NOTIFICATION_ENABLED=true`
-- `INQUIRY_NOTIFICATION_EMAIL=akulaakash17@gmail.com`
-- `EMAIL_FROM`
-- `SMTP_HOST`
-- `SMTP_PORT`
-- `SMTP_SECURE`
-- `SMTP_USER`
-- `SMTP_PASSWORD`
-
-For Gmail SMTP, use `SMTP_HOST=smtp.gmail.com`, `SMTP_PORT=587`, `SMTP_SECURE=false`, and a Gmail App Password for `SMTP_PASSWORD`.
-
-## API Summary
-
-Auth:
-
-- `POST /api/auth/login`
-- `GET /api/auth/me`
-- `POST /api/auth/logout`
-- `GET /api/auth/users`
-- `POST /api/auth/users`
-
-Locations:
-
-- `GET /api/locations/mandals`
-- `GET /api/locations/villages/:mandal`
-
-Properties:
-
-- `GET /api/properties`
-- `GET /api/properties/:idOrSlug`
-- `POST /api/properties`
-- `PUT /api/properties/:id`
-- `DELETE /api/properties/:id`
-
-Property filters:
-
-- `q`
-- `mandal`
-- `village`
-- `property_type`
-- `minPrice`
-- `maxPrice`
-- `status`
-- `page`
-- `limit`
-
-Inquiries:
-
-- `POST /api/inquiries`
-- `GET /api/inquiries`
-- `PATCH /api/inquiries/:id/status`
-
-Agent follow-ups:
-
-- `GET /api/follow-ups`
-- `POST /api/follow-ups`
-- `PATCH /api/follow-ups/:id/status`
-
-Dashboard:
-
-- `GET /api/dashboard/overview`
-
-Notifications:
-
-- `GET /api/notifications`
-
-## Business Rules
-
-- No payments.
-- No checkout.
-- No online booking.
-- Buyers contact the office through WhatsApp, phone calls, or inquiry forms.
-- Agents/admins manage listings and mark properties as available or sold.
-
-
-<!-- next steps -->
-
-It is good for a demo / early live version, but I would not call it fully production-level yet.
-
-Main improvements I’d recommend beyond data:
-
-Translation
-Google Translate widget is okay for quick use, but for production it can be inconsistent and depends on Google script loading. Better production option: use app-controlled translations with i18next for Telugu/Hindi labels, buttons, forms, and main content.
-
-Inquiry Notification
-Code is ready, but real production needs configured WhatsApp Cloud API or Telegram bot credentials. Notification logs and inquiry status tracking are available in the admin dashboard.
-
-Security
-Add stronger production checks:
-
-Strong JWT_SECRET
-HTTPS-only deployment
-Secure CORS domain instead of broad localhost defaults
-Rate limits per sensitive route
-File upload size/type validation is especially important
-
-Production security settings now supported in `backend/.env`:
-
-- `NODE_ENV=production`
-- `JWT_SECRET` must be unique and at least 32 characters
-- `CLIENT_URLS=https://yourdomain.com,https://www.yourdomain.com`
-- `MAX_JSON_BODY_SIZE=100kb`
-- `UPLOAD_MAX_FILE_SIZE_MB=5`
-- `UPLOAD_MAX_VIDEO_FILE_SIZE_MB=50`
-- `UPLOAD_MAX_FILES=10`
-
-The API will reject unknown CORS origins, disable `x-powered-by`, apply stricter login rate limits, use HTTP-only session cookies, and allow only JPG, PNG, WebP property image uploads plus MP4, WebM, and MOV property video uploads.
-Database
-Schema now includes migrations, foreign-key constraints for new data, inquiry status fields, and notification logs. Production should still add:
-
-More NOT NULL constraints for required fields
-Backups
-Database backups can be created and restored with:
+Root project:
 
 ```bash
-npm --prefix backend run db:backup
-npm --prefix backend run db:restore -- backend/backups/your-backup.dump
+npm run dev       # start backend and Vite frontend together
+npm run dev:ui    # start only the Vite frontend
+npm run dev:api   # start only the backend
+npm run build     # build frontend for production
+npm run preview   # preview production frontend build
+npm run lint      # run ESLint
+npm test          # run backend tests
 ```
 
-Backups are saved in `backend/backups` and ignored by Git. For production, schedule daily backups and copy them to private cloud storage.
-Admin Features
-Inquiry status workflow and admin user creation are now in the dashboard. A remaining improvement is assigning inquiries to specific agents.
+Backend:
 
-Testing
-Current lint/build passes and backend unit tests are available with:
+```bash
+npm --prefix backend start          # start backend
+npm --prefix backend run dev        # start backend with node --watch
+npm --prefix backend run db:setup   # create schema and apply migrations
+npm --prefix backend run db:backup  # create PostgreSQL backup
+npm --prefix backend run db:restore # restore PostgreSQL backup
+npm --prefix backend run seed:admin # create/update initial admin
+npm --prefix backend test           # run node:test tests
+```
+
+## Environment Variables
+
+The backend environment example is in `backend/.env.example`.
+
+Important groups:
+
+- App and CORS: `NODE_ENV`, `PORT`, `CLIENT_URL`, `CLIENT_URLS`
+- Database: `DATABASE_URL`, `DB_HOST`, `DB_PORT`, `DB_NAME`, `DB_USER`, `DB_PASSWORD`, `DB_SSL`
+- Auth: `JWT_SECRET`, `JWT_EXPIRES_IN`, `AUTH_COOKIE_NAME`, `AUTH_COOKIE_SAME_SITE`
+- Upload limits: `UPLOAD_MAX_FILE_SIZE_MB`, `UPLOAD_MAX_VIDEO_FILE_SIZE_MB`, `UPLOAD_MAX_FILES`
+- Admin seed: `ADMIN_NAME`, `ADMIN_PHONE`, `ADMIN_EMAIL`, `ADMIN_PASSWORD`
+- Cloudinary: `CLOUDINARY_CLOUD_NAME`, `CLOUDINARY_API_KEY`, `CLOUDINARY_API_SECRET`, `CLOUDINARY_FOLDER`
+- Chatbot: `GROQ_CHATBOT_ENABLED`, `GROQ_API_KEY`, `GROQ_MODEL`
+- Notifications: `WHATSAPP_*`, `TELEGRAM_*`, `SMTP_*`, `EMAIL_*`
+
+The frontend uses `VITE_API_URL` when provided. If it is not set, API calls default to `/api`, which works with the Vite proxy in local development.
+
+Example frontend production variable:
+
+```env
+VITE_API_URL=https://your-api-domain.com/api
+```
+
+## API Overview
+
+Base API path: `/api`
+
+- Auth: `/api/auth`
+- Properties: `/api/properties`
+- Locations: `/api/locations`
+- Inquiries: `/api/inquiries`
+- Dashboard: `/api/dashboard`
+- Follow-ups: `/api/follow-ups`
+- Notifications: `/api/notifications`
+- Audit logs: `/api/audit-logs`
+- Chatbot: `/api/chatbot`
+
+Common public endpoints:
+
+```text
+GET  /api/health
+GET  /api/properties
+GET  /api/properties/:idOrSlug
+GET  /api/locations/mandals
+GET  /api/locations/villages/:mandal
+POST /api/inquiries
+POST /api/chatbot
+```
+
+Admin endpoints require authentication.
+
+## Uploads
+
+In development, uploaded files are stored under `backend/uploads`.
+
+For production, configure Cloudinary:
+
+```env
+CLOUDINARY_CLOUD_NAME=your_cloud_name
+CLOUDINARY_API_KEY=your_api_key
+CLOUDINARY_API_SECRET=your_api_secret
+CLOUDINARY_FOLDER=siddipet-real-estate
+```
+
+Do not commit uploaded files or real media secrets. The repository keeps only `backend/uploads/.gitkeep`.
+
+## Notifications
+
+Inquiry notifications are optional. Enable only the channels you have configured.
+
+WhatsApp Cloud API:
+
+```env
+WHATSAPP_NOTIFICATION_ENABLED=true
+WHATSAPP_API_VERSION=v25.0
+WHATSAPP_PHONE_NUMBER_ID=your_phone_number_id
+WHATSAPP_ACCESS_TOKEN=your_meta_access_token
+INQUIRY_NOTIFICATION_PHONES=919999999999
+```
+
+Telegram:
+
+```env
+TELEGRAM_NOTIFICATION_ENABLED=true
+TELEGRAM_BOT_TOKEN=your_bot_token
+TELEGRAM_CHAT_ID=your_chat_id
+```
+
+Email:
+
+```env
+EMAIL_NOTIFICATION_ENABLED=true
+INQUIRY_NOTIFICATION_EMAIL=admin@example.com
+EMAIL_FROM=admin@example.com
+SMTP_HOST=smtp.gmail.com
+SMTP_PORT=587
+SMTP_SECURE=false
+SMTP_USER=admin@example.com
+SMTP_PASSWORD=your_app_password
+```
+
+## Deployment Notes
+
+- Set `NODE_ENV=production`.
+- Use a strong `JWT_SECRET` with at least 32 characters.
+- Set `CLIENT_URLS` to the exact deployed frontend domains.
+- Use HTTPS in production.
+- Use Cloudinary or another persistent storage provider for uploaded files.
+- Keep `backend/.env`, secrets, database dumps, and uploaded files out of Git.
+- Run `npm run build` before deploying the frontend.
+- Run database migrations with `npm --prefix backend run db:setup` on the target database.
+
+## Tests
+
+Run the current test suite:
 
 ```bash
 npm test
 ```
 
-Production should still add broader:
+The existing backend tests use Node's built-in test runner.
 
-Backend API tests for inquiry/property creation
-Frontend smoke tests for contact form/listings/login
-SEO and Performance
-Basic meta tags, sitemap, robots file, canonical URLs, and property structured data are in place. Remaining improvements are dynamic sitemap generation, image optimization, and production analytics.
+## Git Safety
 
-So: yes, enough to show clients and use carefully, but for serious production I’d next improve translation, notification reliability, database constraints, and admin inquiry workflow.
+Before pushing, confirm ignored files and secrets are not staged:
+
+```bash
+git status
+git diff --cached
+```
+
+Files that should not be committed include:
+
+- `backend/.env`
+- Any `.env` file except `.env.example`
+- `node_modules`
+- `dist`
+- `backend/uploads/*`
+- `backend/backups/*`
+- Database dumps or backup files
