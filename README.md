@@ -1,3 +1,9 @@
+<div style="display-flex">
+  <img width="2916" height="1684" alt="image" src="https://github.com/user-attachments/assets/56271c79-8e5e-4992-84c5-35b73d103b80" />
+  <img width="2892" height="1686" alt="image" src="https://github.com/user-attachments/assets/964c06bb-5886-4333-9a01-f905099f6243" />
+
+</div>
+
 # Siddipet Real Estate Web
 Available at : "https://real-estate-ten-red-17.vercel.app"
 
