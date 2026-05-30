@@ -26,6 +26,7 @@ function escapeHtml(value) {
 function buildInquiryMessage(inquiry) {
   const lines = [
     "New property inquiry",
+    `Inquiry ID: ${inquiry.id || "Not available"}`,
     `Name: ${inquiry.name || "Not provided"}`,
     `Phone: ${inquiry.phone || "Not provided"}`,
     `Property ID: ${inquiry.property_id || "General inquiry"}`,
@@ -33,6 +34,47 @@ function buildInquiryMessage(inquiry) {
   ];
 
   return lines.join("\n");
+}
+
+function getTemplateFieldValue(inquiry, field, message) {
+  const normalizedField = String(field || "").trim().toLowerCase();
+  const values = {
+    inquiry_id: inquiry.id || "",
+    name: inquiry.name || "Not provided",
+    phone: inquiry.phone || "Not provided",
+    property_id: inquiry.property_id || "General inquiry",
+    message: inquiry.message || "No message",
+    full_message: message,
+  };
+
+  return truncate(String(values[normalizedField] ?? ""), 900);
+}
+
+function buildWhatsAppTemplatePayload(inquiry, message, whatsapp) {
+  const template = {
+    name: whatsapp.templateName,
+    language: {
+      code: whatsapp.templateLanguage,
+    },
+  };
+
+  if (whatsapp.templateFields.length) {
+    template.components = [
+      {
+        type: "body",
+        parameters: whatsapp.templateFields.map((field) => ({
+          type: "text",
+          text: getTemplateFieldValue(inquiry, field, message),
+        })),
+      },
+    ];
+  }
+
+  return {
+    messaging_product: "whatsapp",
+    type: "template",
+    template,
+  };
 }
 
 function buildInquiryEmailHtml(inquiry) {
@@ -96,29 +138,39 @@ async function postJson(url, body, headers = {}) {
   }
 }
 
-async function sendWhatsAppNotification(message) {
-  const { whatsapp, inquiryPhones } = env.notifications;
-  const recipientPhones = inquiryPhones.map(normalizePhone).filter(Boolean);
+async function sendWhatsAppNotification(inquiry, message) {
+  const { whatsapp } = env.notifications;
+  const recipientPhones = whatsapp.recipientPhones.map(normalizePhone).filter(Boolean);
 
   if (!whatsapp.enabled || !whatsapp.phoneNumberId || !whatsapp.accessToken || recipientPhones.length === 0) {
     return null;
   }
 
+  if (whatsapp.messageType === "template" && !whatsapp.templateName) {
+    throw new Error("WHATSAPP_TEMPLATE_NAME is required when WHATSAPP_MESSAGE_TYPE=template.");
+  }
+
   const url = `https://graph.facebook.com/${whatsapp.apiVersion}/${whatsapp.phoneNumberId}/messages`;
+  const basePayload =
+    whatsapp.messageType === "template"
+      ? buildWhatsAppTemplatePayload(inquiry, message, whatsapp)
+      : {
+          messaging_product: "whatsapp",
+          recipient_type: "individual",
+          type: "text",
+          text: {
+            preview_url: false,
+            body: message,
+          },
+        };
 
   return Promise.all(
     recipientPhones.map((recipientPhone) =>
       postJson(
         url,
         {
-          messaging_product: "whatsapp",
-          recipient_type: "individual",
           to: recipientPhone,
-          type: "text",
-          text: {
-            preview_url: false,
-            body: message,
-          },
+          ...basePayload,
         },
         {
           Authorization: `Bearer ${whatsapp.accessToken}`,
@@ -206,12 +258,13 @@ async function recordNotification({ inquiryId, channel, recipient = "", result }
 
 export async function notifyInquiryCreated(inquiry) {
   const message = buildInquiryMessage(inquiry);
-  const { inquiryPhones, telegram, email } = env.notifications;
+  const { telegram, email } = env.notifications;
+  const whatsappRecipients = env.notifications.whatsapp.recipientPhones;
   const tasks = [
     {
       channel: "whatsapp",
-      recipient: inquiryPhones.join(","),
-      promise: sendWhatsAppNotification(message),
+      recipient: whatsappRecipients.join(","),
+      promise: sendWhatsAppNotification(inquiry, message),
     },
     {
       channel: "telegram",

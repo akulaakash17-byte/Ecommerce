@@ -235,7 +235,14 @@ WHATSAPP_API_VERSION=v25.0
 WHATSAPP_PHONE_NUMBER_ID=your_phone_number_id
 WHATSAPP_ACCESS_TOKEN=your_meta_access_token
 INQUIRY_NOTIFICATION_PHONES=919999999999
+WHATSAPP_NOTIFICATION_PHONES=919999999999
+WHATSAPP_MESSAGE_TYPE=template
+WHATSAPP_TEMPLATE_NAME=hello_world
+WHATSAPP_TEMPLATE_LANGUAGE=en_US
+WHATSAPP_TEMPLATE_FIELDS=
 ```
+
+Use `WHATSAPP_MESSAGE_TYPE=template` for Meta Cloud API development/test messages or business-initiated messages. The default `hello_world` template only confirms delivery; to include inquiry details in WhatsApp, create an approved WhatsApp template and set `WHATSAPP_TEMPLATE_FIELDS` to the body variable order, for example `name,phone,property_id,message`. Use `WHATSAPP_MESSAGE_TYPE=text` only when the recipient has an open WhatsApp customer-service window with your business number.
 
 Telegram:
 

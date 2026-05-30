@@ -113,6 +113,17 @@ export const env = {
       apiVersion: process.env.WHATSAPP_API_VERSION || "v25.0",
       phoneNumberId: process.env.WHATSAPP_PHONE_NUMBER_ID || "",
       accessToken: process.env.WHATSAPP_ACCESS_TOKEN || "",
+      recipientPhones: splitCsv(
+        process.env.WHATSAPP_NOTIFICATION_PHONES ||
+          process.env.INQUIRY_NOTIFICATION_PHONES ||
+          process.env.INQUIRY_NOTIFICATION_PHONE ||
+          "918897422872"
+      ),
+      messageType:
+        process.env.WHATSAPP_MESSAGE_TYPE || (process.env.WHATSAPP_TEMPLATE_NAME ? "template" : "text"),
+      templateName: process.env.WHATSAPP_TEMPLATE_NAME || "",
+      templateLanguage: process.env.WHATSAPP_TEMPLATE_LANGUAGE || "en_US",
+      templateFields: splitCsv(process.env.WHATSAPP_TEMPLATE_FIELDS),
     },
     telegram: {
       enabled: process.env.TELEGRAM_NOTIFICATION_ENABLED === "true",
