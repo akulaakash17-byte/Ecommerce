@@ -1,11 +1,15 @@
-<div style="display-flex">
-  <img width="2916" height="1684" alt="image" src="https://github.com/user-attachments/assets/56271c79-8e5e-4992-84c5-35b73d103b80" />
-  <img width="2892" height="1686" alt="image" src="https://github.com/user-attachments/assets/964c06bb-5886-4333-9a01-f905099f6243" />
 
-</div>
 
 # Siddipet Real Estate Web
+
 Available at : "https://real-estate-ten-red-17.vercel.app"
+
+
+##Preview
+
+<div style="display-flex">
+  <img width="2916" height="1684" alt="image" src="https://github.com/user-attachments/assets/56271c79-8e5e-4992-84c5-35b73d103b80" />
+</div>
 
 A full-stack real estate listing and inquiry platform for Siddipet district, Telangana. The app helps visitors browse land and property listings, save properties locally, contact the office through inquiry forms or WhatsApp, and lets admins manage listings, inquiries, follow-ups, users, audit logs, and dashboard metrics.
 
