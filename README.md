@@ -15,8 +15,6 @@ This project does not include checkout, online booking, online payments, or in-a
 - Notifications: Optional WhatsApp Cloud API, Telegram Bot API, and SMTP email
 - AI chatbot: Optional Groq-backed chatbot with frontend FAQ fallback
 
-Available at : "https://real-estate-ten-red-17.vercel.app"
-
 
 <h1>Preview</h1>
 
