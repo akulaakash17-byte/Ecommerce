@@ -11,13 +11,21 @@ const isProduction = nodeEnv === "production";
 const jwtSecret = process.env.JWT_SECRET || "change-me";
 const adminPassword = process.env.ADMIN_PASSWORD || "admin12345";
 const clientUrl = process.env.CLIENT_URL || "http://127.0.0.1:5173";
-const clientUrls = splitCsv(process.env.CLIENT_URLS || process.env.CLIENT_URL || clientUrl);
+const productionClientUrls = ["https://realestate-siddipet.vercel.app"];
+const clientUrls = unique([
+  ...splitCsv(process.env.CLIENT_URLS || process.env.CLIENT_URL || clientUrl),
+  ...(isProduction ? productionClientUrls : []),
+]);
 
 function splitCsv(value) {
   return String(value || "")
     .split(",")
     .map((item) => item.trim())
     .filter(Boolean);
+}
+
+function unique(items) {
+  return [...new Set(items)];
 }
 
 function requireStrongProductionSecret(name, value) {

@@ -269,7 +269,7 @@ SMTP_PASSWORD=your_app_password
 
 - Set `NODE_ENV=production`.
 - Use a strong `JWT_SECRET` with at least 32 characters.
-- Set `CLIENT_URLS` to the exact deployed frontend domains.
+- Set `CLIENT_URLS` on the backend to the exact deployed frontend domains, for example `https://realestate-siddipet.vercel.app`. If this is missing, the browser will show API calls as a network error because CORS blocks the response.
 - Use HTTPS in production.
 - Use Cloudinary or another persistent storage provider for uploaded files.
 - Keep `backend/.env`, secrets, database dumps, and uploaded files out of Git.
