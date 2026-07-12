@@ -1,4 +1,7 @@
+
+
 # Siddipet Real Estate Web
+
 
 A full-stack real estate listing and inquiry platform for Siddipet district, Telangana. The app helps visitors browse land and property listings, save properties locally, contact the office through inquiry forms or WhatsApp, and lets admins manage listings, inquiries, follow-ups, users, audit logs, and dashboard metrics.
 
@@ -11,6 +14,13 @@ This project does not include checkout, online booking, online payments, or in-a
 - Uploads: Cloudinary in production when configured, local `backend/uploads` fallback in development
 - Notifications: Optional WhatsApp Cloud API, Telegram Bot API, and SMTP email
 - AI chatbot: Optional Groq-backed chatbot with frontend FAQ fallback
+
+
+<h1>Preview</h1>
+
+<div style="display-flex">
+  <img width="2916" height="1684" alt="image" src="https://github.com/user-attachments/assets/56271c79-8e5e-4992-84c5-35b73d103b80" />
+</div>
 
 ## Features
 
