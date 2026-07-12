@@ -65,9 +65,12 @@ function requireProductionDatabaseCredentials() {
 }
 
 requireStrongProductionSecret("JWT_SECRET", jwtSecret);
-requireStrongProductionPassword("ADMIN_PASSWORD", adminPassword);
 requireProductionClientUrls(clientUrls);
 requireProductionDatabaseCredentials();
+
+export function requireStrongAdminPassword() {
+  requireStrongProductionPassword("ADMIN_PASSWORD", adminPassword);
+}
 
 export const env = {
   nodeEnv,

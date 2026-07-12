@@ -1,9 +1,11 @@
 import bcrypt from "bcryptjs";
 import { pool } from "../config/db.js";
-import { env } from "../config/env.js";
+import { env, requireStrongAdminPassword } from "../config/env.js";
 import { UserModel } from "../models/userModel.js";
 
 try {
+  requireStrongAdminPassword();
+
   const existing = await UserModel.findByEmail(env.admin.email);
   const password = await bcrypt.hash(env.admin.password, 12);
 
